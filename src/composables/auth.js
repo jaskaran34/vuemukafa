@@ -11,6 +11,11 @@ export default function login_code(){
     
     const authStore = useAuthStore();
 
+    const logoutUser= async ()=>{
+        authStore.logout();
+        await router.push({name: 'userLogin'});
+    }
+
     const getUser= async (token) =>{
         let url =`${authStore.baseURL}/partner`;
 
@@ -21,6 +26,9 @@ export default function login_code(){
           });
 
           authStore.user=res.data;
+
+          
+          
 
 
     }
@@ -38,9 +46,8 @@ export default function login_code(){
         let res = await axios.post(url,param)
         let token=res.data.token;
         localStorage.setItem('token',token);
-        getUser(token);
-    
-        
+       await getUser(token);
+   
         await router.push({name: 'Dashboard'});
         }
         catch (error) {
@@ -52,6 +59,7 @@ export default function login_code(){
    
 
     return {
-        login
+        login,
+        logoutUser
       };
 }

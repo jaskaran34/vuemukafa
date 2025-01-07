@@ -7,7 +7,8 @@ import userLogin from '@/components/auth/userLogin.vue';
 import Dashboard from '@/components/DashBoard.vue';
 
 const routes = [
-  { path: '/', name: 'userLogin', component: userLogin },
+  { path: '/', redirect: '/login' },
+  { path: '/login', name: 'userLogin', component: userLogin },
   { path: '/dashboard', name: 'Dashboard', component: Dashboard, meta: { requiresAuth: true } },
 ];
 
