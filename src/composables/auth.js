@@ -9,6 +9,30 @@ export default function login_code(){
     const router = useRouter();
     const authStore = useAuthStore();
 
+
+    
+
+    const addtransaction = async(order_amt,order_no,memberuid)=>{
+
+  
+      let url =`${authStore.baseURL}/partner/cards/879-645-606-742/${memberuid}/transactions/purchases`;
+    let  obj={
+        purchase_amount:order_amt,
+        note:order_no,
+        staffId:"250501144612864"
+    }
+    let res = await axios.post(url,obj,{
+      headers: {
+        Authorization: `Bearer ${authStore.token}`
+      }
+    });
+    if(res.status==200){
+      return res.data;
+    }
+      
+
+    }
+
     const findmember = async(memberuid)=>{
 
       let url =`${authStore.baseURL}/partner/member/${memberuid}`;
@@ -194,6 +218,7 @@ let obj={
         updateuser,
         Partner_Add_Staff,
         getstaff,
-        findmember
+        findmember,
+        addtransaction
       };
 }

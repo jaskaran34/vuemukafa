@@ -1,8 +1,13 @@
 <script setup>
 import { ref } from 'vue';
 import login_code from '@/composables/auth.js';
-const { findmember } = login_code();
+const { findmember,addtransaction } = login_code();
 
+
+
+
+ 
+ 
 const errors = ref({
   account: '',
   otp:'',
@@ -58,7 +63,37 @@ const verify_otp = async () => {
     
 };
 
+const report=ref({
+  order_amount:'',
+  tran_id:'',
+  display:false
+});
+const issue_points = async () => {
+ 
+ let result=await addtransaction(document.getElementById('order_amt').value,document.getElementById('order_no').value,member_account.value.member_unique_identifier);
+ otp.value=false;
+ ini.value=false;
+ order.value=false;
+ report.value.display=true;
+ report.value.order_amount=result.purchase_amount;
+ report.value.tran_id=result.id;
 
+ setTimeout(() => { 
+    
+    
+   ini.value=true;
+   report.value.display=false;
+   }, 5000);  
+
+
+ 
+};
+
+
+//dummy staff id 250505074921472
+//dummy card id 879-645-606-742
+
+///partner/cards/879-645-606-742/628-950-523-259/transactions/purchases
 </script>
 
 <template>
@@ -163,6 +198,35 @@ const verify_otp = async () => {
       
     </form>
   </div>
+
+
+  <div v-if="report.display" class="profile-container mt-2">
+    
+    <div class="form-row mt-3">
+   <table style="width: 800px;">
+    <thead>
+      <tr>
+      <th>Transaction Id</th>
+      <th>Purchase amount</th>
+      
+    </tr>
+    </thead>
+    
+    
+    <tbody>
+      <tr>
+      <td>{{ report.tran_id }}</td>
+      <td>{{ report.order_amount }}</td>
+    </tr>
+    </tbody>
+   </table>
+        
+      </div>
+
+  </div>
+
+
+  
 </template>
 
 <style scoped>
