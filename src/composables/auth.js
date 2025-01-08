@@ -7,11 +7,29 @@ import { useAuthStore } from '@/store/authStore';
 export default function login_code(){
 
     const router = useRouter();
-    
-    
     const authStore = useAuthStore();
 
-   
+
+    const updateuser = async(user)=>{
+
+      console.log(user);
+
+      let url =`${authStore.baseURL}/partner`;
+
+        let res = await axios.put(url,user,{
+            headers: {
+              Authorization: `Bearer ${authStore.token}`
+            }
+          });
+
+          if(res.status==200){
+          await getUser(authStore.token);
+          alert('updated');
+          }
+          //console.log(res);
+    }
+
+
     const returnUser = async()=>{
       //console.log(authStore.token);
       await getUser(authStore.token);
@@ -20,8 +38,40 @@ export default function login_code(){
     }
 
     const logoutUser= async ()=>{
-        authStore.logout();
+
+      let url =`${authStore.baseURL}/partner/logout`;
+      
+      //console.log(authStore.token);
+      
+      try {
+      let res = await axios.post(url,{},{
+        headers: {
+          Authorization: `Bearer ${authStore.token}`
+        }
+      });
+      
+     // console.log(res);
+      
+      if(res.status==200){
+       await authStore.logout();
         await router.push({name: 'userLogin'});
+      }
+      else{
+        console.log('Error Response code='+ res.status);
+      }
+
+      
+      }
+      catch (error) {
+
+          console.error("error:", error);
+        //await  authStore.logout();
+        //await router.push({name: 'userLogin'});
+         
+      }
+
+      
+        
     }
 
     const getUser= async (token) =>{
@@ -70,6 +120,7 @@ export default function login_code(){
     return {
         login,
         logoutUser,
-        returnUser
+        returnUser,
+        updateuser
       };
 }

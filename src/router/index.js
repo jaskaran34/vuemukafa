@@ -48,12 +48,13 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   
+  //console.log(to);
   const authStore = useAuthStore(); 
   
   let isAuthenticated = authStore.isAuthenticated; 
 
   if(to.fullPath=='/login' && isAuthenticated){
-    next({ name: 'Dashboard' });
+       next({ name: 'Dashboard' });
     return
   }
  
