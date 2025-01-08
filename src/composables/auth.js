@@ -10,13 +10,42 @@ export default function login_code(){
     const authStore = useAuthStore();
 
 
+    const Partner_Add_Staff =async(user)=>{
+//console.log(user);
+let obj={
+        "name":user.staffname,
+        "email":user.staffemail,
+        "password":user.staffpassword,
+        "meta":user.stafftype
+      }
+
+      let url =`${authStore.baseURL}/partner/register/staff`;
+
+        let res = await axios.post(url,obj,{
+            headers: {
+              Authorization: `Bearer ${authStore.token}`
+            }
+          });
+
+          if(res.status==201){
+          
+          alert('Staff Added');
+          }
+    }
+    
+
     const updateuser = async(user)=>{
 
-      console.log(user);
+      let obj={
+        "name":user.profilename,
+        "email":user.profileemail,
+        "phone":user.profilephone,
+        "profilephone_prefix":user.profilephone_prefix
+      }
 
       let url =`${authStore.baseURL}/partner`;
 
-        let res = await axios.put(url,user,{
+        let res = await axios.put(url,obj,{
             headers: {
               Authorization: `Bearer ${authStore.token}`
             }
@@ -91,9 +120,15 @@ export default function login_code(){
 
     }
 
-    const login = async (email,password) => {
+    const login = async (email,password,login_type) => {
 
-        let url =`${authStore.baseURL}/partner/login`;
+      let url;
+      if(login_type=='P'){
+        url =`${authStore.baseURL}/partner/login`;
+      }
+      if(login_type=='S'){
+        url =`${authStore.baseURL}/staff/login`;
+      }
         
         const param={
             email,
@@ -101,13 +136,19 @@ export default function login_code(){
         }
         //console.log();
         try {
-        let res = await axios.post(url,param)
-        let token=res.data.token;
-        localStorage.setItem('token',token);
-        authStore.token=token;
-      
-       
-        await router.push({name: 'Dashboard'});
+        let res = await axios.post(url,param);
+        if(res.status==200){
+          let token=res.data.token;
+          localStorage.setItem('token',token);
+          authStore.token=token;
+          authStore.user_type=login_type;
+         
+          await router.push({name: 'Dashboard'});
+         
+        }
+        else{
+          throw new Error('Api Error and Status Code: '+ res.status);
+        }
         }
         catch (error) {
             console.error("Login error:", error);
@@ -121,6 +162,7 @@ export default function login_code(){
         login,
         logoutUser,
         returnUser,
-        updateuser
+        updateuser,
+        Partner_Add_Staff
       };
 }

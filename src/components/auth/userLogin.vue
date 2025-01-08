@@ -4,8 +4,9 @@ import login_code from '@/composables/auth.js';
 const { login } = login_code();
 const email=ref('');
 const password=ref('');
+const login_type=ref('');
 const submitForm = () => {
-    login(email.value,password.value);
+    login(email.value,password.value,login_type.value);
 };
 </script>
 <template>
@@ -16,6 +17,21 @@ const submitForm = () => {
   
           <!-- Form -->
           <form @submit.prevent="submitForm">
+            <div class="mb-3">
+              <label for="loginas" class="form-label">Login As</label>
+            <select
+            v-model="login_type"
+            class="form-control"
+            id="login_type"
+            required
+          >
+            <option value="" disabled selected>Select</option>
+            <option value="P">Partner</option>
+            <option value="S">Staff</option>
+          </select>
+
+          </div>
+
             <div class="mb-3">
               <label for="email" class="form-label">Email Address</label>
               <input

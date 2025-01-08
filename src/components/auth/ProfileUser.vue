@@ -9,11 +9,11 @@ const authStore = useAuthStore();
 let isSubmitted=ref(false);
 
 // Extract only the relevant properties from the user object
-const user = ref({
-  name: authStore.user.name || '',
-  email: authStore.user.email || '',
-  phone: authStore.user.phone ? authStore.user.phone.toString() : '', 
-  phone_prefix: authStore.user.phone_prefix ? authStore.user.phone_prefix.toString() : '', 
+const profileuser = ref({
+    profilename: authStore.user.name || '',
+    profileemail: authStore.user.email || '',
+    profilephone: authStore.user.phone ? authStore.user.phone.toString() : '', 
+    profilephone_prefix: authStore.user.phone_prefix ? authStore.user.phone_prefix.toString() : '', 
 });
 
 const errors=ref({
@@ -34,24 +34,25 @@ const updateProfile = async () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
     const mobileRegex = /^\d{10}$/;
 
-    if (user.value.name.trim() === '' 
-    || !nameRegex.test(user.value.name) 
-    || /<script.*?>.*<\/script>/.test(user.value.name)) 
+    if (profileuser.value.profilename.trim() === '' 
+    || !nameRegex.test(profileuser.value.profilename) 
+    || /<script.*?>.*<\/script>/.test(profileuser.value.profilename)) 
     {
         errors.value.name = 'Invalid name.'; 
         return;
          }
 
-    if (!emailRegex.test(user.value.email)) {
+    if (!emailRegex.test(profileuser.value.profileemail)) {
         errors.value.email = 'Invalid email address'; 
         return;
         }
-    if (!mobileRegex.test(user.value.phone)) { 
+    if (!mobileRegex.test(profileuser.value.profilephone)) { 
             errors.value.phone = 'Invalid mobile number. ';
             return;
           }    
 
-        await  updateuser(user.value);
+          console.log(profileuser.value);
+        await  updateuser(profileuser.value);
     
 };
 
@@ -62,28 +63,28 @@ const updateProfile = async () => {
     <h5>Profile</h5>
     <form @submit.prevent="updateProfile">
       <div class="form-row mb-3">
-        <label for="name" class="col-sm-2 col-form-label">Name:</label>
+        <label for="profilename" class="col-sm-2 col-form-label">Name:</label>
         <div class="col-sm-10">
           <input
             type="text"
-            id="name"
-            v-model="user.name"
+            id="profilename"
+            v-model="profileuser.profilename"
             class="form-control"
-            :placeholder="user.name ? '' : 'Enter your name'"
+            :placeholder="profileuser.profilename ? '' : 'Enter your name'"
           />
           <span v-if="isSubmitted && errors.name" class="text-danger">{{ errors.name }}</span>
         </div>
       </div>
 
       <div class="form-row mb-3">
-        <label for="email" class="col-sm-2 col-form-label">Email:</label>
+        <label for="profileemail" class="col-sm-2 col-form-label">Email:</label>
         <div class="col-sm-10">
           <input
             type="email"
-            id="email"
-            v-model="user.email"
+            id="profileemail"
+            v-model="profileuser.profileemail"
             class="form-control"
-            :placeholder="user.email ? '' : 'Enter your email'"
+            :placeholder="profileuser.profileemail ? '' : 'Enter your email'"
           />
           <span v-if="isSubmitted && errors.email" class="text-danger">{{ errors.email }}</span>
         </div>
@@ -93,27 +94,27 @@ const updateProfile = async () => {
         <label for="countryCode" class="col-sm-2 col-form-label">Country Code:</label>
         <div class="col-sm-10">
           <select
-            v-model="user.phone_prefix"
+            v-model="profileuser.profilephone_prefix"
             class="form-control"
             id="countryCode"
             required
           >
             <option value="" disabled selected>Select Country Code</option>
-            <option value="+91" :selected="user.phone_prefix === '+91'">India (+91)</option>
-            <option value="+974" :selected="user.phone_prefix === '+974'">Qatar (+974)</option>
+            <option value="+91" :selected="profileuser.profilephone_prefix === '+91'">India (+91)</option>
+            <option value="+974" :selected="profileuser.profilephone_prefix === '+974'">Qatar (+974)</option>
           </select>
         </div>
       </div>
 
       <div class="form-row mb-3">
-        <label for="mobile" class="col-sm-2 col-form-label">Mobile:</label>
+        <label for="profilemobile" class="col-sm-2 col-form-label">Mobile:</label>
         <div class="col-sm-10">
           <input
             type="text"
-            id="mobile"
-            v-model.trim="user.phone"
+            id="profilemobile"
+            v-model.trim="profileuser.profilephone"
             class="form-control"
-            :placeholder="user.phone ? '' : 'Enter your mobile number'"
+            :placeholder="profileuser.profilephone ? '' : 'Enter your mobile number'"
           />
           <span v-if="isSubmitted && errors.phone" class="text-danger">{{ errors.phone }}</span>
         </div>
