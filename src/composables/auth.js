@@ -9,6 +9,35 @@ export default function login_code(){
     const router = useRouter();
     const authStore = useAuthStore();
 
+    const findmember = async(memberuid)=>{
+
+      let url =`${authStore.baseURL}/partner/member/${memberuid}`;
+      let res = await axios.get(url,{
+        headers: {
+          Authorization: `Bearer ${authStore.token}`
+        }
+      });
+      if(res.status==200){
+        return res.data.member;
+      }
+
+    }
+
+
+    const getstaff = async()=>{
+      let url =`${authStore.baseURL}/partner/staff`;
+
+        let res = await axios.get(url,{
+            headers: {
+              Authorization: `Bearer ${authStore.token}`
+            }
+          });
+
+          if(res.status==200){
+            return res.data;
+          }
+    }
+    
 
     const Partner_Add_Staff =async(user)=>{
 //console.log(user);
@@ -16,7 +45,7 @@ let obj={
         "name":user.staffname,
         "email":user.staffemail,
         "password":user.staffpassword,
-        "meta":user.stafftype
+        "staff_type":user.stafftype
       }
 
       let url =`${authStore.baseURL}/partner/register/staff`;
@@ -163,6 +192,8 @@ let obj={
         logoutUser,
         returnUser,
         updateuser,
-        Partner_Add_Staff
+        Partner_Add_Staff,
+        getstaff,
+        findmember
       };
 }

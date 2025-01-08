@@ -1,8 +1,17 @@
 <script setup>
-import { ref } from 'vue';
+import { ref,onMounted } from 'vue';
 import login_code from '@/composables/auth.js';
-const { Partner_Add_Staff } = login_code();
+const { Partner_Add_Staff, getstaff} = login_code();
 
+const staffData = ref([]);
+
+onMounted(async()=>{
+    const staffList = await getstaff(); // Call your composable function here
+    console.log(staffList);
+  staffData.value = staffList;  // Store the fetched staff data
+
+    
+});
 const form = ref({
   staffname: '',
   staffemail: '',
@@ -130,7 +139,28 @@ if(form.value.stafftype==""){
       </div>
       <button type="submit" class="btn btn-primary">Add</button>
     </form>
-  </div>
+    <h5 class="mb-2 mt-2">Staff List</h5>
+    <table class="table table-striped table-bordered">
+      <thead class="table-dark">
+        <tr>
+          <th></th>
+          <th>Staff Name</th>
+          <th>Email</th>
+          <th>Created At</th>
+          <th>Type of Staff</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="staff in staffData" :key="staff.id">
+          <td>{{ staff.id }}</td>
+          <td>{{ staff.name }}</td>
+          <td>{{ staff.email }}</td>
+          <td>{{ staff.created_at }}</td>
+          <td>{{ staff.meta }}</td>
+        </tr>
+      </tbody>
+    </table>
+ </div>
 </template>
 
 <style scoped>
