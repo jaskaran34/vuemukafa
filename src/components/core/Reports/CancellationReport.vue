@@ -1,0 +1,3 @@
+<template>
+    Cancellation reports
+</template>

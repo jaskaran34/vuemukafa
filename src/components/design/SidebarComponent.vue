@@ -1,3 +1,12 @@
+<script setup>
+ /*
+ import { useRoute } from "vue-router";
+ const route = useRoute();
+
+ const isActive = (path) => route.path === path;
+ */ 
+ </script>
+
 <template>
     <div class="sidebar">
     <div class="heading">
@@ -7,9 +16,26 @@
     
   </div>
       <ul class="nav flex-column">
-        <li class="nav-item mt-2">
-          <router-link class="nav-link" to="/settings">Settings</router-link>
+        <li class="nav-item mt-4">
+          <router-link class="nav-link" :to="{ name: 'Dashboard' }">Dashboard</router-link>
         </li>
+
+        <li class="nav-item">
+          <router-link class="nav-link"
+            :to="{ name: 'issue_points' }">Issue Points</router-link>
+        </li>
+
+        <li class="nav-item">
+          <router-link class="nav-link"
+           :to="{ name: 'redumption' }">Redumption</router-link>
+        </li>
+
+        <li class="nav-item">
+          <router-link class="nav-link"
+            :to="{ name: 'return' }">Cancellation / Return</router-link>
+        </li>
+
+
         <li class="nav-item">
           <a
             class="nav-link dropdown-toggle"
@@ -23,14 +49,47 @@
           <div class="collapse" id="reports">
             <ul class="list-unstyled ps-3">
               <li>
-                <router-link class="nav-link" to="/reports/credit">Credit</router-link>
+                <router-link class="nav-link" 
+                 :to="{ name: 'report_transactions' }">Transactions</router-link>
               </li>
               <li>
-                <router-link class="nav-link" to="/reports/debit">Debit</router-link>
+                <router-link class="nav-link" 
+               :to="{ name: 'report_refunds' }">Refunds</router-link>
               </li>
               <li>
-                <router-link class="nav-link" to="/reports/refund">Refund</router-link>
+                <router-link class="nav-link" 
+                :to="{ name: 'report_cancel' }">Cancellation</router-link>
               </li>
+              <li>
+                <router-link class="nav-link" 
+              :to="{ name: 'report_settle' }">Settlements</router-link>
+              </li>
+            </ul>
+          </div>
+        </li>
+        
+
+        <li class="nav-item">
+          <a
+            class="nav-link dropdown-toggle"
+            href="#settings"
+            data-bs-toggle="collapse"
+            aria-expanded="false"
+            aria-controls="settings"
+          >
+            Settings
+          </a>
+          <div class="collapse" id="settings">
+            <ul class="list-unstyled ps-3">
+              <li>
+                <router-link class="nav-link" 
+                 :to="{ name: 'settings_addstaff' }">Add Staff</router-link>
+              </li>
+              <li>
+                <router-link class="nav-link" 
+               :to="{ name: 'settings_bankaccounts' }">Bank Accounts</router-link>
+              </li>
+              
             </ul>
           </div>
         </li>
@@ -38,11 +97,7 @@
     </div>
   </template>
   
-  <script>
-  export default {
-    name: "SidebarComponent",
-  };
-  </script>
+  
   
   <style scoped>
  
@@ -106,5 +161,10 @@
   .nav-item .collapse .nav-link {
     padding-left: 40px; /* Indentation for sub-links */
   }
+
+  .router-link-active {
+  background-color: #3752ad;
+  color: white;
+}
   </style>
   

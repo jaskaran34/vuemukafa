@@ -11,6 +11,14 @@ export default function login_code(){
     
     const authStore = useAuthStore();
 
+   
+    const returnUser = async()=>{
+      //console.log(authStore.token);
+      await getUser(authStore.token);
+      let user=authStore.user;
+      return user;
+    }
+
     const logoutUser= async ()=>{
         authStore.logout();
         await router.push({name: 'userLogin'});
@@ -46,8 +54,9 @@ export default function login_code(){
         let res = await axios.post(url,param)
         let token=res.data.token;
         localStorage.setItem('token',token);
-       await getUser(token);
-   
+        authStore.token=token;
+      
+       
         await router.push({name: 'Dashboard'});
         }
         catch (error) {
@@ -60,6 +69,7 @@ export default function login_code(){
 
     return {
         login,
-        logoutUser
+        logoutUser,
+        returnUser
       };
 }

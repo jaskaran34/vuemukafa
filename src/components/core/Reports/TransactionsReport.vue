@@ -1,0 +1,3 @@
+<template>
+    Transactions report
+</template>

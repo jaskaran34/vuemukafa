@@ -1,16 +1,18 @@
 <script setup>
-import { useAuthStore } from '@/store/authStore';
+//import { useAuthStore } from '@/store/authStore';
 import { ref,onMounted } from 'vue';
 import login_code from '@/composables/auth.js';
-const { logoutUser } = login_code();
-const authStore = useAuthStore();
+const { logoutUser,returnUser } = login_code();
 
+//const authStore = useAuthStore();
+//console.log(authStore.token);
 const profile_pic = ref('');
-onMounted(() => { 
-    profile_pic.value= authStore.user.avatar
-    
 
+onMounted(async ()=>{
+  let user=await returnUser();
+  profile_pic.value=user.avatar;
 });
+
 const logout = () => {
     logoutUser();
 };
@@ -52,7 +54,7 @@ const logout = () => {
               </a>
               <ul class="dropdown-menu" aria-labelledby="userDropdown">
                 <li>
-  <router-link class="dropdown-item" to="/profile">Profile</router-link>
+  <router-link class="dropdown-item" :to="{ name: 'profile' }">Profile</router-link>
 </li>
 <li>
   <a class="dropdown-item" @click="logout" >Logout</a>

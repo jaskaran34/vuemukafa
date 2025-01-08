@@ -4,12 +4,41 @@ import { useAuthStore } from '@/store/authStore';
 
 // Import views
 import userLogin from '@/components/auth/userLogin.vue';
-import Dashboard from '@/components/DashBoard.vue';
+import Dashboard from '@/components/core/DashBoard.vue';
+import IssuePoints from '@/components/core/IssuePoints.vue';
+import RedumptionCase from '@/components/core/RedumptionCase.vue';
+import CancelReturn from '@/components/core/CancelReturn.vue';
 
+import CancellationReport from '@/components/core/Reports/CancellationReport.vue';
+import RefundsReport from '@/components/core/Reports/RefundsReport.vue';
+import SettlementsReport from '@/components/core/Reports/SettlementsReport.vue';
+import TransactionsReport from '@/components/core/Reports/TransactionsReport.vue';
+
+import AddStaff from '@/components/core/settings/AddStaff.vue';
+import BankAccounts from '@/components/core/settings/BankAccounts.vue';
+
+import ProfileUser from '@/components/auth/ProfileUser.vue';
 const routes = [
   { path: '/', redirect: '/login' },
   { path: '/login', name: 'userLogin', component: userLogin },
   { path: '/dashboard', name: 'Dashboard', component: Dashboard, meta: { requiresAuth: true } },
+  { path: '/issue_points', name: 'issue_points', component: IssuePoints, meta: { requiresAuth: true } },
+  { path: '/redumption', name: 'redumption', component: RedumptionCase, meta: { requiresAuth: true } },
+  { path: '/return', name: 'return', component: CancelReturn, meta: { requiresAuth: true } },
+
+  { path: '/report_transactions', name: 'report_transactions', component: TransactionsReport, meta: { requiresAuth: true } },
+  { path: '/report_settle', name: 'report_settle', component: SettlementsReport, meta: { requiresAuth: true } },
+  { path: '/report_refunds', name: 'report_refunds', component: RefundsReport, meta: { requiresAuth: true } },
+  { path: '/report_cancel', name: 'report_cancel', component: CancellationReport, meta: { requiresAuth: true } },
+
+
+  { path: '/settings_addstaff', name: 'settings_addstaff', component: AddStaff, meta: { requiresAuth: true } },
+  { path: '/settings_bankaccounts', name: 'settings_bankaccounts', component: BankAccounts, meta: { requiresAuth: true } },
+
+  { path: '/profile', name: 'profile', component: ProfileUser, meta: { requiresAuth: true } },
+
+
+
 ];
 
 const router = createRouter({
@@ -17,12 +46,21 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
-  const authStore = useAuthStore(); // Access the Pinia store
-  const isAuthenticated = authStore.isAuthenticated; // Use the getter
+router.beforeEach(async (to, from, next) => {
+  
+  const authStore = useAuthStore(); 
+  
+  let isAuthenticated = authStore.isAuthenticated; 
+
+  if(to.fullPath=='/login' && isAuthenticated){
+    next({ name: 'Dashboard' });
+    return
+  }
+ 
 
   if (to.meta.requiresAuth && !isAuthenticated) {
     // Redirect to login if the user is not authenticated
+    
     next({ name: 'userLogin' });
   } else {
     next(); // Allow navigation to the requested route

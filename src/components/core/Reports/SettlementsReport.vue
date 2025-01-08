@@ -1,0 +1,3 @@
+<template>
+    Settlements reports
+</template>
