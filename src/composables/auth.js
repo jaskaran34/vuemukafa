@@ -10,16 +10,46 @@ export default function login_code(){
     const authStore = useAuthStore();
 
 
-    
+    const getsuperadminstaff= async()=>{
+      try{
+      let url =`${authStore.baseURL}/partner/super/staff`;
+      let res = await axios.get(url,{
+        headers: {
+          Authorization: `Bearer ${authStore.token}`
+        }
+      });
+      
+      if(res.status==200){
+        return res.data;
+      }
+      else{
+        return "Error";
+      }
+    }catch(error){
+      
+      return "Error";
+    }
+      
+    }
 
     const addtransaction = async(order_amt,order_no,memberuid)=>{
 
-  
+      try{
+      let setstaffid;
+              if(authStore.user_type=='P'){
+
+               let getstaffid= await getsuperadminstaff();
+               if(getstaffid=='Error'){
+                throw new Error('No Superadmin Staff Added');
+               }
+               setstaffid=getstaffid.id;
+              }
+
       let url =`${authStore.baseURL}/partner/cards/879-645-606-742/${memberuid}/transactions/purchases`;
     let  obj={
         purchase_amount:order_amt,
         note:order_no,
-        staffId:"250501144612864"
+        staffId:setstaffid
     }
     let res = await axios.post(url,obj,{
       headers: {
@@ -29,23 +59,50 @@ export default function login_code(){
     if(res.status==200){
       return res.data;
     }
-      
+    else{
+      throw new Error('Error to Add Transaction');
+    }
+  }catch (error) {
+    if (error.response?.status === 422) {
+      // Extract validation error messages
+      const validationErrors = error.response.data.errors;
+      const errorMessages = Object.values(validationErrors).flat().join(', ');
+      throw new Error(errorMessages || 'Validation error occurred');
+    }
+    if (error.response?.status === 404) {
+      // Extract validation error messages
+      const validationErrors = error.response.data.errors;
+      const errorMessages = Object.values(validationErrors).flat().join(', ');
+      throw new Error(errorMessages || 'Validation error occurred');
+    }
+    throw new Error(error?.response?.data?.message || error.message || 'Network error');
+  }
+
 
     }
 
-    const findmember = async(memberuid)=>{
 
-      let url =`${authStore.baseURL}/partner/member/${memberuid}`;
-      let res = await axios.get(url,{
-        headers: {
-          Authorization: `Bearer ${authStore.token}`
+    const findmember = async (memberuid) => {
+      try {
+        let url = `${authStore.baseURL}/partner/member/${memberuid}`;
+        let res = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${authStore.token}`
+          }
+        });
+    
+        if (res.status === 200) {
+          return res.data.member;
+        } else {
+          throw new Error('Failed to find member');
         }
-      });
-      if(res.status==200){
-        return res.data.member;
+      } catch (error) {
+        throw new Error(error?.response?.data?.message || error.message || 'Network error');
       }
+    };
+    
 
-    }
+
 
 
     const getstaff = async()=>{
@@ -64,7 +121,9 @@ export default function login_code(){
     
 
     const Partner_Add_Staff =async(user)=>{
-//console.log(user);
+
+try{
+
 let obj={
         "name":user.staffname,
         "email":user.staffemail,
@@ -72,6 +131,14 @@ let obj={
         "staff_type":user.stafftype
       }
 
+if(obj.staff_type=="1"){
+let getstaffid= await getsuperadminstaff();
+
+if(getstaffid!="Error"){
+
+  throw new Error('Superadmin Staff Already exist. Email: '+ getstaffid.email);
+}
+}
       let url =`${authStore.baseURL}/partner/register/staff`;
 
         let res = await axios.post(url,obj,{
@@ -84,6 +151,15 @@ let obj={
           
           alert('Staff Added');
           }
+          else{
+            throw new Error('Error:'+ res.status);
+          }
+
+        
+        }
+        catch(error){
+          throw new Error(error?.response?.data?.message || error.message || 'Network error');
+        }
     }
     
 

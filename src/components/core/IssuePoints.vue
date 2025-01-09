@@ -12,7 +12,8 @@ const errors = ref({
   account: '',
   otp:'',
   order_no:'',
-  order_amt:''
+  order_amt:'',
+  points:''
 });
 
 const member_account=ref({
@@ -41,15 +42,14 @@ const find_member = async () => {
     otp.value = true;
    // console.log(member.value.phone);
   } catch (error) {
-    errors.value.account = 'An error occurred while fetching member data.';
-    console.error(error);
+    errors.value.account = 'An error occurred while fetching member data.';  
   }
 };
 
 const verify_otp = async () => {
  
     if(document.getElementById('otp').value=='1234'){
-    alert('Otp Verification Success');
+    
       //otp.value = false;
       //ini.value=false;
       order.value=true;
@@ -70,12 +70,13 @@ const report=ref({
 });
 const issue_points = async () => {
  
+  try{
  let result=await addtransaction(document.getElementById('order_amt').value,document.getElementById('order_no').value,member_account.value.member_unique_identifier);
  otp.value=false;
  ini.value=false;
  order.value=false;
  report.value.display=true;
- report.value.order_amount=result.purchase_amount;
+ report.value.order_amount=result.points;
  report.value.tran_id=result.id;
 
  setTimeout(() => { 
@@ -84,6 +85,11 @@ const issue_points = async () => {
    ini.value=true;
    report.value.display=false;
    }, 5000);  
+  }catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    //console.error('Error:', errorMessage);
+    errors.value.points = errorMessage;  
+  }
 
 
  
@@ -196,7 +202,10 @@ const issue_points = async () => {
       <button type="submit" class="btn btn-success">Issue Points</button>
 
       
+
+      
     </form>
+    <span v-if="errors.points" class="text-danger">{{ errors.points }}</span>
   </div>
 
 

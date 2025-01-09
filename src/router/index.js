@@ -18,6 +18,7 @@ import AddStaff from '@/components/core/settings/AddStaff.vue';
 import BankAccounts from '@/components/core/settings/BankAccounts.vue';
 
 import ProfileUser from '@/components/auth/ProfileUser.vue';
+import TemporaryReload from '@/components/design/TemporaryReload.vue';
 const routes = [
   { path: '/', redirect: '/login' },
   { path: '/login', name: 'userLogin', component: userLogin },
@@ -37,8 +38,18 @@ const routes = [
 
   { path: '/profile', name: 'profile', component: ProfileUser, meta: { requiresAuth: true } },
 
-
-
+  { path: '/reload', name: 'reload', component: TemporaryReload },
+  /*
+  { path: '/reload/:routeName',name: 'reload',
+    component: {render() {return null; // Empty component
+      },
+    },
+    beforeEnter: (to, from, next) => {
+      const targetRoute = { name: to.params.routeName }; // Only redirect by name
+      next(targetRoute); // Redirect to the target route
+    },
+  },
+  */
 ];
 
 const router = createRouter({

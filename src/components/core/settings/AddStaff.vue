@@ -2,16 +2,36 @@
 import { ref,onMounted } from 'vue';
 import login_code from '@/composables/auth.js';
 const { Partner_Add_Staff, getstaff} = login_code();
+import { useRoute, useRouter } from 'vue-router';
+const route = useRoute();
+const router = useRouter();
+
+import { useAuthStore } from '@/store/authStore';
+const authStore = useAuthStore();
 
 const staffData = ref([]);
 
 onMounted(async()=>{
-    const staffList = await getstaff(); // Call your composable function here
-    console.log(staffList);
-  staffData.value = staffList;  // Store the fetched staff data
 
+  if (authStore.token) {
+    const staffList = await getstaff(); // Call your composable function here
+    staffData.value = staffList;  // Store the fetched staff data
+
+  } else {
+    // Token is null, redirect to login or show an error
+
+    router.push({name: 'userLogin'});
+  }
+   
     
 });
+
+const reloadRoute = async() => {
+   const currentRoute = { name: route.name, query: route.query, params: route.params, };
+    router.push({ name: 'reload', query: { targetRoute: JSON.stringify(currentRoute) } }); 
+  };
+
+
 const form = ref({
   staffname: '',
   staffemail: '',
@@ -19,10 +39,21 @@ const form = ref({
   stafftype: '',
 });
 
+const getStaffLabel = (metaValue) => {
+  switch (metaValue) {
+    case 1:
+      return 'Superadmin';
+    case 2:
+      return 'Manager';
+    case 3:
+      return 'Sales';
+  }
+};
+
 const staffTypes = [
   { label: 'Superadmin', value: '1' },
   { label: 'Manager', value: '2' },
-  { label: 'Marketing', value: '3' },
+  { label: 'Sales', value: '3' },
 ];
 
 let isSubmitted=ref(false);
@@ -31,13 +62,16 @@ const errors=ref({
     email:'',
     name:'',
     password:'',
-    type:''
+    type:'',
+    points:''
 });
 
 
 
 
 const addstaff = async () => {
+
+
     errors.value.name='';
     errors.value.email='';
     errors.value.phone='';
@@ -73,9 +107,18 @@ if(form.value.stafftype==""){
         }
     
 
-          
+  try{        
         await  Partner_Add_Staff(form.value);
-    
+       // console.log(router.path);
+        await reloadRoute();
+
+  }
+
+  catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    //console.error('Error:', errorMessage);
+    errors.value.points = errorMessage;  
+  }
 };
 </script>
 
@@ -139,6 +182,7 @@ if(form.value.stafftype==""){
       </div>
       <button type="submit" class="btn btn-primary">Add</button>
     </form>
+    <span v-if="errors.points" class="text-danger">{{ errors.points }}</span>
     <h5 class="mb-2 mt-2">Staff List</h5>
     <table class="table table-striped table-bordered">
       <thead class="table-dark">
@@ -156,7 +200,7 @@ if(form.value.stafftype==""){
           <td>{{ staff.name }}</td>
           <td>{{ staff.email }}</td>
           <td>{{ staff.created_at }}</td>
-          <td>{{ staff.meta }}</td>
+          <td>{{ getStaffLabel(staff.meta)}}</td>
         </tr>
       </tbody>
     </table>

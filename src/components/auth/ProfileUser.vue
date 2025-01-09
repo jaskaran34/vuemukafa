@@ -8,13 +8,24 @@ const authStore = useAuthStore();
 
 let isSubmitted=ref(false);
 
+let profileuser;
 // Extract only the relevant properties from the user object
-const profileuser = ref({
+if (authStore.token) {
+ profileuser = ref({
     profilename: authStore.user.name || '',
     profileemail: authStore.user.email || '',
     profilephone: authStore.user.phone ? authStore.user.phone.toString() : '', 
     profilephone_prefix: authStore.user.phone_prefix ? authStore.user.phone_prefix.toString() : '', 
 });
+}
+else{
+  profileuser = ref({
+    profilename:  '',
+    profileemail:  '',
+    profilephone: '', 
+    profilephone_prefix:  '', 
+});
+}
 
 const errors=ref({
     email:'',
