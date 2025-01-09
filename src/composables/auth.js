@@ -102,6 +102,26 @@ export default function login_code(){
     };
     
 
+    const member_tran_history = async (memberuid) => {
+      try {
+        let url = `${authStore.baseURL}/partner/transaction/member/${memberuid}`;
+        let res = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${authStore.token}`
+          }
+        });
+    
+        if (res.status === 200) {
+         //console.log(res.data);
+          return res.data.data;
+        } else {
+          throw new Error('Failed to find member');
+        }
+      } catch (error) {
+        throw new Error(error?.response?.data?.message || error.message || 'Network error');
+      }
+    };
+
 
 
 
@@ -295,6 +315,7 @@ if(getstaffid!="Error"){
         Partner_Add_Staff,
         getstaff,
         findmember,
-        addtransaction
+        addtransaction,
+        member_tran_history
       };
 }

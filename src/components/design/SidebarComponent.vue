@@ -117,7 +117,8 @@
     }
   /* Sidebar container styling */
   .sidebar {
-    height: 100vh;
+    height: auto;
+    min-height: 100vh;
     width: 250px;
     background-color: #ecf0fb;
     border-right: 1px solid #d3d8e8;

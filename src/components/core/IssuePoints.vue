@@ -1,12 +1,12 @@
 <script setup>
 import { ref } from 'vue';
 import login_code from '@/composables/auth.js';
-const { findmember,addtransaction } = login_code();
+const { findmember,addtransaction,member_tran_history } = login_code();
 
 
 
 
- 
+const history = ref([]);
  
 const errors = ref({
   account: '',
@@ -26,6 +26,7 @@ const member_account=ref({
 const member = ref({});
 const otp = ref(false);
 const order = ref(false);
+const transactions = ref(false);
 const phone_no = ref('');
 const ini = ref(true);
 
@@ -39,6 +40,7 @@ const find_member = async () => {
     member_account.value.member_unique_identifier=member.value.unique_identifier;
     member_account.value.member_phone=member.value.phone;
 
+    transactions.value=false;
     otp.value = true;
    // console.log(member.value.phone);
   } catch (error) {
@@ -50,9 +52,11 @@ const verify_otp = async () => {
  
     if(document.getElementById('otp').value=='1234'){
     
-      //otp.value = false;
-      //ini.value=false;
+      otp.value = false;
+     ini.value=false;
+      history.value=await member_tran_history(member_account.value.member_unique_identifier);
       order.value=true;
+      transactions.value=true;
 
     }
     else{
@@ -70,11 +74,32 @@ const report=ref({
 });
 const issue_points = async () => {
  
+  const value = document.getElementById('order_amt').value;
+const order_number=document.getElementById('order_no').value;
+  // Regular expression to check for a positive integer or float
+  const regex = /^(?!0\d)(?:\d+|\d*\.\d+)$/;
+  const numberRegex = /^[a-zA-Z0-9-/]+$/;
+
+  if (!regex.test(value) || parseFloat(value) <= 0)
+   { 
+    errors.value.order_amt = 'Invalid Order Amount';
+    return false;
+   }
+
+   if (!order_number || !numberRegex.test(order_number)) { 
+    errors.value.order_no = 'Invalid Order Number';
+    return false; 
+    }
+
+
+
   try{
- let result=await addtransaction(document.getElementById('order_amt').value,document.getElementById('order_no').value,member_account.value.member_unique_identifier);
+ let result=await addtransaction(value,order_number,member_account.value.member_unique_identifier);
+ //console.log(result);
  otp.value=false;
  ini.value=false;
  order.value=false;
+ history.value=await member_tran_history(member_account.value.member_unique_identifier);
  report.value.display=true;
  report.value.order_amount=result.points;
  report.value.tran_id=result.id;
@@ -134,6 +159,7 @@ const issue_points = async () => {
         <label for="profilename" class="col-sm-2 col-form-label">Enter Otp:</label>
         <div class="col-sm-10">
           <input
+          value="1234"
             type="text"
             id="otp"
             class="form-control"
@@ -229,6 +255,41 @@ const issue_points = async () => {
     </tr>
     </tbody>
    </table>
+        
+      </div>
+
+  </div>
+
+
+
+  <div v-if="transactions" class="profile-container mt-2">
+    
+    <div class="form-row mt-3">
+   <table class="table table-bordered table-hover">
+      <thead class="table-dark">
+        <tr>
+          <th>Transaction ID</th>
+          <th>Order ID</th>
+          <th>Purchase Amount</th>
+          <th>Points</th>
+          <th>Created At</th>
+          <th>Staff</th>
+          <th>Card</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="history in history" :key="history.id">
+          <td>{{ history.id }}</td>
+          <td>{{ history.note }}</td>
+          <td>{{ history.purchase_amount }}</td>
+          <td>{{ history.points }}</td>
+          <td>{{ history.created_at }}</td>
+          <td>{{ history.staff?.email || 'N/A' }}</td>
+          <td>{{ history.card?.name || 'N/A' }}</td>
+        </tr>
+      </tbody>
+    </table>
+
         
       </div>
 
