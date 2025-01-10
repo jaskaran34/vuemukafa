@@ -20,7 +20,10 @@ const member_account=ref({
   member_name:'',
   member_email:'',
   member_unique_identifier:'',
-  member_phone:''
+  member_phone:'',
+  member_cardid:'',
+  member_carduid:'',
+  member_cardname:''
 
 });
 const member = ref({});
@@ -32,7 +35,13 @@ const ini = ref(true);
 
 const find_member = async () => {
   try {
-    member.value = await findmember(document.getElementById('mukafa_account').value);
+   
+ let result = await findmember(document.getElementById('mukafa_account').value);
+    member.value=result.member;
+    member_account.value.member_cardid=result.card_id;
+    member_account.value.member_carduid=result.cardUID;
+    member_account.value.member_cardname=result.card_name;
+
     phone_no.value = member.value.phone;
     
     member_account.value.member_name=member.value.name;
@@ -94,7 +103,7 @@ const order_number=document.getElementById('order_no').value;
 
 
   try{
- let result=await addtransaction(value,order_number,member_account.value.member_unique_identifier);
+ let result=await addtransaction(value,order_number,member_account.value.member_unique_identifier,member_account.value.member_carduid);
  //console.log(result);
  otp.value=false;
  ini.value=false;
@@ -176,30 +185,39 @@ const order_number=document.getElementById('order_no').value;
   <div v-if="order" class="profile-container mt-2">
     
     <div class="form-row mb-3">
-   <table style="width: 800px;">
+      <table class="table table-bordered" style="max-width: 800px; margin: auto;">
     <thead>
-      <tr>
-      <th>Name</th>
-      <th>Email</th>
-      <th>unique identifier</th>
-      <th>Phone</th>
-    </tr>
+        <!-- Title Row -->
+        <tr class="bg-primary text-white">
+            <th colspan="5" class="text-center">
+                Account Details
+            </th>
+        </tr>
+        <!-- Column Header Row -->
+        <tr class="bg-light text-dark">
+            <th>Name</th>
+            <th>Email</th>
+            <th>Unique Identifier</th>
+            <th>Phone</th>
+            <th>Card</th>
+        </tr>
     </thead>
-    
-    
     <tbody>
-      <tr>
-      <td>{{ member_account.member_name }}</td>
-      <td>{{ member_account.member_email }}</td>
-      <td>{{ member_account.member_unique_identifier }}</td>
-      <td>{{ member_account.member_phone }}</td>
-    </tr>
+        <!-- Data Row -->
+        <tr>
+            <td>{{ member_account.member_name }}</td>
+            <td>{{ member_account.member_email }}</td>
+            <td>{{ member_account.member_unique_identifier }}</td>
+            <td>{{ member_account.member_phone }}</td>
+            <td>{{ member_account.member_cardname }}</td>
+        </tr>
     </tbody>
-   </table>
+</table>
+
         
       </div>
 
-    <form @submit.prevent="issue_points">
+    <form @submit.prevent="issue_points" class="mt-1">
 
       
     
@@ -238,12 +256,14 @@ const order_number=document.getElementById('order_no').value;
   <div v-if="report.display" class="profile-container mt-2">
     
     <div class="form-row mt-3">
-   <table style="width: 800px;">
-    <thead>
-      <tr>
+      <table class="table table-bordered" style="max-width: 800px; margin: auto;">
+        <thead>
+          <tr>
+      <th colspan="2">Transaction Details</th>
+    </tr>  
+    <tr>
       <th>Transaction Id</th>
       <th>Purchase amount</th>
-      
     </tr>
     </thead>
     
@@ -265,8 +285,11 @@ const order_number=document.getElementById('order_no').value;
   <div v-if="transactions" class="profile-container mt-2">
     
     <div class="form-row mt-3">
-   <table class="table table-bordered table-hover">
-      <thead class="table-dark">
+      <table class="table table-bordered" style="max-width: 800px; margin: auto;">
+        <thead>
+        <tr>
+          <th colspan="7" style="text-align: center;">Recent History</th>
+    </tr>
         <tr>
           <th>Transaction ID</th>
           <th>Order ID</th>

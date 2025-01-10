@@ -32,7 +32,7 @@ export default function login_code(){
       
     }
 
-    const addtransaction = async(order_amt,order_no,memberuid)=>{
+    const addtransaction = async(order_amt,order_no,memberuid,carduid)=>{
 
       try{
       let setstaffid;
@@ -45,7 +45,7 @@ export default function login_code(){
                setstaffid=getstaffid.id;
               }
 
-      let url =`${authStore.baseURL}/partner/cards/879-645-606-742/${memberuid}/transactions/purchases`;
+      let url =`${authStore.baseURL}/partner/cards/${carduid}/${memberuid}/transactions/purchases`;
     let  obj={
         purchase_amount:order_amt,
         note:order_no,
@@ -92,7 +92,7 @@ export default function login_code(){
         });
     
         if (res.status === 200) {
-          return res.data.member;
+          return res.data;
         } else {
           throw new Error('Failed to find member');
         }
