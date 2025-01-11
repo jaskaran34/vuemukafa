@@ -32,6 +32,54 @@ export default function login_code(){
       
     }
 
+    const redeempoints= async(order_amt,order_no,memberuid,carduid)=>{
+      try{
+        let setstaffid;
+                if(authStore.user_type=='P'){
+  
+                 let getstaffid= await getsuperadminstaff();
+                 if(getstaffid=='Error'){
+                  throw new Error('No Superadmin Staff Added');
+                 }
+                 setstaffid=getstaffid.id;
+                }
+
+        let url =`${authStore.baseURL}/partner/cards/${carduid}/${memberuid}/transactions/points/redeem`;
+        let pts= parseInt(order_amt)* 100;
+      let  obj={
+        points:pts,
+          note:order_no,
+          staffId:setstaffid
+      }
+      let res = await axios.post(url,obj,{
+        headers: {
+          Authorization: `Bearer ${authStore.token}`
+        }
+      });
+      if(res.status==200){
+        return res.data;
+      }
+      else{
+        throw new Error('Error to Add Transaction');
+      }
+    }catch (error) {
+      if (error.response?.status === 422) {
+        // Extract validation error messages
+        const validationErrors = error.response.data.errors;
+        const errorMessages = Object.values(validationErrors).flat().join(', ');
+        throw new Error(errorMessages || 'Validation error occurred');
+      }
+      if (error.response?.status === 404) {
+        // Extract validation error messages
+        const validationErrors = error.response.data.errors;
+        const errorMessages = Object.values(validationErrors).flat().join(', ');
+        throw new Error(errorMessages || 'Validation error occurred');
+      }
+      throw new Error(error?.response?.data?.message || error.message || 'Network error');
+    }
+  
+  
+    }
     const addtransaction = async(order_amt,order_no,memberuid,carduid)=>{
 
       try{
@@ -316,6 +364,7 @@ if(getstaffid!="Error"){
         getstaff,
         findmember,
         addtransaction,
+        redeempoints,
         member_tran_history
       };
 }

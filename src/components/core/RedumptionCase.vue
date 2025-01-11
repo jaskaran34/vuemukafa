@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import login_code from '@/composables/auth.js';
-const { findmember,member_tran_history } = login_code();
+const { findmember,member_tran_history,redeempoints } = login_code();
 
 const history = ref([]);
 const ini = ref(true);
@@ -16,7 +16,13 @@ const errors = ref({
   account: '',
   mukafa_points:'',
   otp:'',
-  order_no:''
+  order_no:'',
+  points:''
+});
+const report=ref({
+  order_amount:'',
+  tran_id:'',
+  display:false
 });
 
 const member_account=ref({
@@ -77,17 +83,26 @@ const verify_otp = async () => {
  
  
 };
+function resetErrors() {
+    Object.keys(errors.value).forEach(key => {
+        errors.value[key] = null;
+    });
+}
+
 
 const redeem_points = async () => {
+
+    resetErrors();
+
     const value = document.getElementById('mukafa_points').value;
 const order_number=document.getElementById('order_no').value;
   // Regular expression to check for a positive integer or float
-  const regex = /^(?!0\d)(?:\d+|\d*\.\d+)$/;
+  const regex = /^[1-9]\d*$/;
   const numberRegex = /^[a-zA-Z0-9-/]+$/;
 
   if (!regex.test(value) || parseFloat(value) <= 0)
    { 
-    errors.value.order_amt = 'Invalid Order Amount';
+    errors.value.mukafa_points = 'Invalid Mukafa Amount. Enter Postive Integers less than or equal to ' + member_account.value.member_redeem_amt;
     return false;
    }
 
@@ -96,6 +111,34 @@ const order_number=document.getElementById('order_no').value;
     return false; 
     }
 
+    if(parseInt(value, 10)>parseInt(member_account.value.member_redeem_amt, 10)){
+        errors.value.mukafa_points = 'Invalid Mukafa Amount. Enter Postive Integers less than or equal to ' + member_account.value.member_redeem_amt;
+        return false;
+    } 
+
+
+    try{
+ let result=await redeempoints(value,order_number,member_account.value.member_unique_identifier,member_account.value.member_carduid);
+ //console.log(result);
+ otp.value=false;
+ ini.value=false;
+ order.value=false;
+ history.value=await member_tran_history(member_account.value.member_unique_identifier);
+ report.value.display=true;
+ report.value.order_amount=result.points;
+ report.value.tran_id=result.id;
+
+ setTimeout(() => { 
+    
+    
+   ini.value=true;
+   report.value.display=false;
+   }, 5000);  
+  }catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    //console.error('Error:', errorMessage);
+    errors.value.points = errorMessage;  
+  }
 
 
 }
@@ -223,6 +266,33 @@ const order_number=document.getElementById('order_no').value;
     <span v-if="errors.points" class="text-danger">{{ errors.points }}</span>
   </div>
 
+  
+  <div v-if="report.display" class="profile-container mt-2">
+    
+    <div class="form-row mt-3">
+      <table class="table table-bordered" style="max-width: 800px; margin: auto;">
+        <thead>
+          <tr>
+      <th colspan="2">Transaction Details</th>
+    </tr>  
+    <tr>
+      <th>Transaction Id</th>
+      <th>Purchase amount</th>
+    </tr>
+    </thead>
+    
+    
+    <tbody>
+      <tr>
+      <td>{{ report.tran_id }}</td>
+      <td>{{ report.order_amount }}</td>
+    </tr>
+    </tbody>
+   </table>
+        
+      </div>
+
+  </div>
 
   <div v-if="transactions" class="profile-container mt-2">
     
