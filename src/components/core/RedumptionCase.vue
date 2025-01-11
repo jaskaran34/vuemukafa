@@ -111,6 +111,11 @@ const order_number=document.getElementById('order_no').value;
     return false; 
     }
 
+    if(parseInt(member_account.value.member_redeem_amt, 10)<1){
+        errors.value.mukafa_points = 'Low Balance.:' + member_account.value.member_redeem_amt;
+        return false; 
+    }
+
     if(parseInt(value, 10)>parseInt(member_account.value.member_redeem_amt, 10)){
         errors.value.mukafa_points = 'Invalid Mukafa Amount. Enter Postive Integers less than or equal to ' + member_account.value.member_redeem_amt;
         return false;
