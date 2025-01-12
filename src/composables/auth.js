@@ -300,6 +300,24 @@ if(getstaffid!="Error"){
         
     }
 
+    const cancel_transaction = async (id) => {
+      try {
+        const url = `${authStore.baseURL}/partner/transactions/${id}`;
+        const res = await axios.delete(url, {
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+          },
+        });
+    
+        if (res.status === 200) {
+        return res.data;
+        }
+        
+      } catch (error) {
+        console.error('Error cancelling transaction:', error.response?.data || error.message);
+      }
+    };
+    
     const alltransactions= async (pageurl = null,params) =>{
       try {
         let baseUrl =`${authStore.baseURL}/partner/transactions`;
@@ -391,6 +409,7 @@ if(getstaffid!="Error"){
         addtransaction,
         redeempoints,
         member_tran_history,
-        alltransactions
+        alltransactions,
+        cancel_transaction
       };
 }

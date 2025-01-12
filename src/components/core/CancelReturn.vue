@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted,watch } from "vue";
 import login_code from '@/composables/auth.js';
-const { alltransactions } = login_code();
+const { alltransactions,cancel_transaction } = login_code();
 import { useAuthStore } from '@/store/authStore';
 
 const authStore = useAuthStore();
@@ -72,8 +72,21 @@ const formatDate = (dateString) => {
 };
 
 
-const cancel=(id)=>{
-  alert(id);
+const cancel=async(id)=>{
+ let answer=confirm('Do you want to Cancel the transaction');
+ if(answer){
+  try{
+    let res=await cancel_transaction(id);
+ let targetId=res.id;
+const foundTransaction = transactions.value.find(item => item.id == targetId);
+foundTransaction.deleted_at=res.deleted_at;
+ 
+  }
+  catch(e)
+  {
+    alert(e);
+  }
+}
 }
 
 // Fetch initial data on component mount
@@ -183,6 +196,7 @@ onMounted(() => {
           <td>{{ transaction.note || 'N/A' }}</td>
           <td>{{ transaction.member.email }}</td>
           <td v-if="!transaction.deleted_at"><button @click="cancel(transaction.id)" class="btn btn-danger">Cancel</button></td>
+          <td v-if="transaction.deleted_at"> Deleted : {{ formatDate(transaction.deleted_at)  }}</td>
         </tr>
       </tbody>
     </table>
