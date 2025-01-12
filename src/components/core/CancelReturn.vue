@@ -1,9 +1,9 @@
 <script setup>
-import { ref, onMounted } from "vue";
-
-import axios from 'axios';
-
+import { ref, onMounted,watch } from "vue";
+import login_code from '@/composables/auth.js';
+const { alltransactions } = login_code();
 import { useAuthStore } from '@/store/authStore';
+
 const authStore = useAuthStore();
 
 const transactions = ref([]); // Store transaction data
@@ -15,26 +15,40 @@ const pagination = ref({
 });
 const recordsPerPage = ref(10); // Default records per page
 const filterStatus = ref(""); // Default filter status
+const reset_page_setting=ref(true);
+
+watch(
+  filterStatus,
+  (newValue, oldValue) => {
+    //console.log(newValue);
+    //console.log(oldValue);
+    if (oldValue !== newValue) {
+      reset_page_setting.value=true;
+    }
+    else{
+      reset_page_setting.value=false;
+    }
+  }
+);
 
 const fetchTransactions = async (pageurl = null) => {
-  const baseUrl = "http://dev-mukafa.js.qa/api/en-us/v1/partner/transactions";
+  
+ 
+  if(reset_page_setting.value){
+    pagination.value.current_page=1;
+   // alert('changed');
+  }
   const params = new URLSearchParams({
     page: pagination.value.current_page,
     per_page: recordsPerPage.value,
     status: filterStatus.value,
   });
-  const url = pageurl ||`${baseUrl}?${params.toString()}`;
-
-  try {
-     let res = await axios.get(url,{
-        headers: {
-          Authorization: `Bearer ${authStore.token}`
-        }
-      });
-     
-    //console.log(res);
+      
+  try{
     
-    // Update transactions and pagination data
+   const res= await alltransactions(pageurl,params);
+    
+  
     transactions.value = res.data.data;
     pagination.value = {
       current_page: res.data.current_page,
@@ -57,9 +71,17 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString(undefined, options);
 };
 
+
+const cancel=(id)=>{
+  alert(id);
+}
+
 // Fetch initial data on component mount
 onMounted(() => {
+  if (authStore.token) {
   fetchTransactions();
+  }
+
 });
 </script>
 
@@ -149,6 +171,7 @@ onMounted(() => {
       <th>Points</th>
       <th>Note</th>
       <th>Member Email</th>
+      <th>Action</th>
     </tr>
   </thead>
       <tbody>
@@ -159,6 +182,7 @@ onMounted(() => {
           <td>{{ transaction.points }}</td>
           <td>{{ transaction.note || 'N/A' }}</td>
           <td>{{ transaction.member.email }}</td>
+          <td v-if="!transaction.deleted_at"><button @click="cancel(transaction.id)" class="btn btn-danger">Cancel</button></td>
         </tr>
       </tbody>
     </table>

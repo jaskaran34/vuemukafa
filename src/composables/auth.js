@@ -300,6 +300,31 @@ if(getstaffid!="Error"){
         
     }
 
+    const alltransactions= async (pageurl = null,params) =>{
+      try {
+        let baseUrl =`${authStore.baseURL}/partner/transactions`;
+        if(pageurl){
+          //console.log(url);console.log(params);
+        }
+        const url = pageurl ||`${baseUrl}?${params.toString()}`;
+     
+        let res = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${authStore.token}`
+          }
+        });
+    
+        if (res.status === 200) {
+         //console.log(res.data);
+          return res;
+        } else {
+          throw new Error('Failed to find member');
+        }
+      } catch (error) {
+        throw new Error(error?.response?.data?.message || error.message || 'Network error');
+      }
+    }
+
     const getUser= async (token) =>{
         let url =`${authStore.baseURL}/partner`;
 
@@ -365,6 +390,7 @@ if(getstaffid!="Error"){
         findmember,
         addtransaction,
         redeempoints,
-        member_tran_history
+        member_tran_history,
+        alltransactions
       };
 }
