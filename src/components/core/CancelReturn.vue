@@ -16,6 +16,12 @@ const pagination = ref({
 const recordsPerPage = ref(10); // Default records per page
 const filterStatus = ref(""); // Default filter status
 const reset_page_setting=ref(true);
+const search_id = ref("");
+const search_orderid = ref("");
+
+const from_date = ref("");
+const to_date = ref("");
+
 
 watch(
   filterStatus,
@@ -42,6 +48,10 @@ const fetchTransactions = async (pageurl = null) => {
     page: pagination.value.current_page,
     per_page: recordsPerPage.value,
     status: filterStatus.value,
+    id: search_id.value,
+    note:search_orderid.value,
+    from_date:from_date.value,
+    to_date:to_date.value
   });
       
   try{
@@ -61,10 +71,8 @@ const fetchTransactions = async (pageurl = null) => {
   }
 };
 
-const filterTransactions = (status) => {
-  filterStatus.value = status;
-  fetchTransactions();
-};
+
+
 
 const formatDate = (dateString) => {
   const options = { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" };
@@ -96,6 +104,13 @@ onMounted(() => {
   }
 
 });
+
+const filterTransactions = (status) => {
+  filterStatus.value = status;
+  fetchTransactions();
+};
+
+
 </script>
 
 
@@ -118,6 +133,16 @@ onMounted(() => {
     <table class="table table-bordered">
       <thead class="table-light align-middle">
     <!-- Filter and Pagination Row -->
+    <tr>
+      <th colspan="7">
+        <div style="display: inline-block; width: 100%; ">
+      <label>Filter</label>    <input type="text"  v-model="search_id" placeholder="By Transaction ID" @blur="fetchTransactions();">
+        
+          <input type="text"  v-model="search_orderid" placeholder="By Order ID" @blur="fetchTransactions();">
+        
+      
+         By Order Date<input type="date" v-model="from_date"  @blur="fetchTransactions()" ><input type="date" v-model="to_date"  @blur="fetchTransactions()"> </div></th>
+      </tr>
     <tr>
       <th colspan="3">
         <div class="d-flex align-items-center">
@@ -178,25 +203,30 @@ onMounted(() => {
     </tr>
     <!-- Table Headers Row -->
     <tr>
-      <th>ID</th>
+      <th>Transaction ID</th>
+      <th>Order Id</th>
       <th>Date</th>
+      <th>Member Email</th>
       <th>Purchase Amount</th>
       <th>Points</th>
-      <th>Note</th>
-      <th>Member Email</th>
+      
+      
       <th>Action</th>
     </tr>
   </thead>
       <tbody>
         <tr v-for="transaction in transactions" :key="transaction.id">
           <td>{{ transaction.id }}</td>
-          <td>{{ formatDate(transaction.created_at) }}</td>
-          <td>{{ transaction.purchase_amount || 'N/A' }}</td>
-          <td>{{ transaction.points }}</td>
           <td>{{ transaction.note || 'N/A' }}</td>
           <td>{{ transaction.member.email }}</td>
+          <td>{{ formatDate(transaction.created_at) }}</td>
+          <td>{{ transaction.points || 'N/A' }}</td>
+          <td>{{ transaction.points }}</td>
+          
+          
           <td v-if="!transaction.deleted_at"><button @click="cancel(transaction.id)" class="btn btn-danger">Cancel</button></td>
           <td v-if="transaction.deleted_at"> Deleted : {{ formatDate(transaction.deleted_at)  }}</td>
+          
         </tr>
       </tbody>
     </table>
