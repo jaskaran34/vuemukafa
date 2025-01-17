@@ -21,6 +21,11 @@ const search_orderid = ref("");
 
 const from_date = ref("");
 const to_date = ref("");
+const cancel_points=ref();
+const balance_after_cancel=ref();
+
+const cancelledTransactionIds = ref({});
+const showcancelled = ref({});
 
 
 watch(
@@ -79,22 +84,49 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString(undefined, options);
 };
 
+const transcation_cancel=async(id)=>{
 
-const cancel=async(id)=>{
- let answer=confirm('Do you want to Cancel the transaction');
- if(answer){
+
   try{
+    if(document.getElementById('otp').value=='1234'){
     let res=await cancel_transaction(id);
  let targetId=res.id;
+  cancel_points.value=res.points;
+ balance_after_cancel.value=res.balance;
+
 const foundTransaction = transactions.value.find(item => item.id == targetId);
 foundTransaction.deleted_at=res.deleted_at;
- 
+revert(id); 
+
+showcancelled.value[id] = `Transaction ${id} `;
+
+
+setTimeout(() => { 
+    
+    
+  delete showcancelled.value[id];
+  cancel_points.value='';
+  balance_after_cancel.value='';
+}, 5000); 
+
+    }
+else{
+  alert('Invalid Otp');
+}
   }
   catch(e)
   {
     alert(e);
   }
+
 }
+
+
+const cancel=async(id)=>{
+
+  cancelledTransactionIds.value[id] = `Transaction ${id} `;
+  
+  //transcation_cancel(id);
 }
 
 // Fetch initial data on component mount
@@ -109,6 +141,14 @@ const filterTransactions = (status) => {
   filterStatus.value = status;
   fetchTransactions();
 };
+
+const revert= (id)=>{
+
+
+  delete cancelledTransactionIds.value[id];
+  
+
+}
 
 
 </script>
@@ -130,18 +170,18 @@ const filterTransactions = (status) => {
     </div>
 
     <!-- Table to Display Transactions -->
-    <table class="table table-bordered">
+    <table class="table table-bordered" id="table_show">
       <thead class="table-light align-middle">
     <!-- Filter and Pagination Row -->
     <tr>
-      <th colspan="7">
+      <th colspan="8">
         <div style="display: inline-block; width: 100%; ">
       <label>Filter</label>    <input type="text"  v-model="search_id" placeholder="By Transaction ID" @blur="fetchTransactions();">
         
           <input type="text"  v-model="search_orderid" placeholder="By Order ID" @blur="fetchTransactions();">
         
       
-         By Order Date<input type="date" v-model="from_date"  @blur="fetchTransactions()" ><input type="date" v-model="to_date"  @blur="fetchTransactions()"> </div></th>
+         By Order Date<input type="date" v-model="from_date"  @change="fetchTransactions()" ><input type="date" v-model="to_date"  @change="fetchTransactions()"> </div></th>
       </tr>
     <tr>
       <th colspan="3">
@@ -169,7 +209,7 @@ const filterTransactions = (status) => {
           </button>
         </div>
       </th>
-      <th colspan="4" class="text-end">
+      <th colspan="5" class="text-end">
         <div class="d-flex justify-content-end align-items-center">
           <button
             class="btn btn-light me-1"
@@ -205,29 +245,91 @@ const filterTransactions = (status) => {
     <tr>
       <th>Transaction ID</th>
       <th>Order Id</th>
-      <th>Date</th>
       <th>Member Email</th>
+      <th>Date</th>
+      <th>Type</th>
       <th>Purchase Amount</th>
       <th>Points</th>
       
       
-      <th>Action</th>
+      <th>Status</th>
     </tr>
   </thead>
       <tbody>
-        <tr v-for="transaction in transactions" :key="transaction.id">
-          <td>{{ transaction.id }}</td>
-          <td>{{ transaction.note || 'N/A' }}</td>
-          <td>{{ transaction.member.email }}</td>
-          <td>{{ formatDate(transaction.created_at) }}</td>
-          <td>{{ transaction.points || 'N/A' }}</td>
-          <td>{{ transaction.points }}</td>
+        <template v-for="(transaction, index) in transactions" :key="transaction.id">
+                    <tr>
+                        <td>{{ transaction.id }}</td>
+                        <td>{{ transaction.note || 'N/A' }}</td>
+                        <td>{{ transaction.member.email }}</td>
+                        <td>{{ formatDate(transaction.created_at) }}</td>
+                        <td>{{ transaction.type }}</td>
+                        <td>{{ transaction.purchase_amount  }}</td>
+                        <td>{{ transaction.points }}</td>
+                        <td v-if="transaction.deleted_at">
+                            <button @click="cancel(transaction.id,index)" class="btn btn-danger">Cancel / Refund</button>
+                        </td>
+                        <td v-if="!transaction.deleted_at"> {{transaction.status }}</td>
+                    </tr>
+                    <tr v-if="cancelledTransactionIds[transaction.id]">
+                      <td colspan="8">
+    <div class="card p-4">
+        <!-- Everything in a flex row -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <p class="mb-0 me-3">Are you sure you want to cancel transaction #{{ transaction.id }}?</p>
+
+            <!-- OTP input field and Submit button aligned on the same line -->
+            <div class="d-flex align-items-center me-3">
+                <label for="otp" class="form-label mb-0 me-2">Enter OTP:</label>
+                <input type="text" class="form-control" id="otp" placeholder="Enter OTP" style="width: 250px;">
+            </div>
+
+            <div class="d-flex align-items-center me-3">
+                <label for="otp" class="form-label mb-0 me-2">Enter OTP:</label>
+                <input type="text" class="form-control" id="otp" placeholder="Enter OTP" style="width: 250px;">
+            </div>
+
+            <!-- Submit and Close buttons -->
+            <button @click="transcation_cancel(transaction.id)" class="btn btn-danger ms-2">Submit</button>
+            <button @click="revert(transaction.id)" class="btn btn-success ms-2">Close</button>
+        </div>
+    </div>
+</td>
+
+</tr>
+
+
+
+
+<tr v-if="showcancelled[transaction.id]">
+                      <td colspan="8">
+    <div class="card p-4">
+        <!-- Everything in a flex row -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <table class="table table-bordered" style="max-width: 500px; margin: auto;">
+            <thead>
+              <tr><th colspan="3" style="text-align: center;">Transaction Cancelled</th></tr>
+            
+            </thead>
+            <tbody>
+              <tr>
+                <td>Reference no {{ transaction.id }}</td>
+                <td>Points Cancelled {{ cancel_points }}</td>
+                <td>Balance {{ balance_after_cancel }}</td>
+
           
-          
-          <td v-if="!transaction.deleted_at"><button @click="cancel(transaction.id)" class="btn btn-danger">Cancel</button></td>
-          <td v-if="transaction.deleted_at"> Deleted : {{ formatDate(transaction.deleted_at)  }}</td>
-          
-        </tr>
+              </tr>
+            </tbody>
+
+          </table>
+                  
+
+        </div>
+    </div>
+</td>
+
+</tr>
+                </template>
+        
       </tbody>
     </table>
   </div>

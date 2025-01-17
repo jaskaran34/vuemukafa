@@ -22,7 +22,9 @@ const member_account=ref({
   member_phone:'',
   member_cardid:'',
   member_carduid:'',
-  member_cardname:''
+  member_cardname:'',
+   balance:'',
+  pending_balance:''
 
 });
 const member = ref({});
@@ -40,6 +42,8 @@ const find_member = async () => {
     member_account.value.member_cardid=result.card_id;
     member_account.value.member_carduid=result.cardUID;
     member_account.value.member_cardname=result.card_name;
+    member_account.value.balance=result.points;
+    member_account.value.pending_balance=result.pending_points;
 
     phone_no.value = member.value.phone;
     
@@ -78,7 +82,10 @@ const verify_otp = async () => {
 const report=ref({
   order_amount:'',
   tran_id:'',
-  display:false
+  display:false,
+  transaction_status:'',
+  type:'',
+  status:''
 });
 const issue_points = async () => {
  
@@ -111,6 +118,9 @@ const order_number=document.getElementById('order_no').value;
  report.value.display=true;
  report.value.order_amount=result.points;
  report.value.tran_id=result.id;
+ report.value.transaction_status=result.transaction_status;
+ report.value.type=result.type;
+ report.value.status=result.status;
 
  setTimeout(() => { 
     
@@ -188,7 +198,7 @@ const order_number=document.getElementById('order_no').value;
     <thead>
         <!-- Title Row -->
         <tr class="bg-primary text-white">
-            <th colspan="5" class="text-center">
+            <th colspan="7" class="text-center">
                 Account Details
             </th>
         </tr>
@@ -199,6 +209,8 @@ const order_number=document.getElementById('order_no').value;
             <th>Unique Identifier</th>
             <th>Phone</th>
             <th>Card</th>
+            <th>Balance</th>
+            <th>Pending Balance</th>
         </tr>
     </thead>
     <tbody>
@@ -209,6 +221,9 @@ const order_number=document.getElementById('order_no').value;
             <td>{{ member_account.member_unique_identifier }}</td>
             <td>{{ member_account.member_phone }}</td>
             <td>{{ member_account.member_cardname }}</td>
+            <td>{{ member_account.balance }}</td>
+            <td>{{ member_account.pending_balance }}</td>
+            
         </tr>
     </tbody>
 </table>
@@ -258,11 +273,14 @@ const order_number=document.getElementById('order_no').value;
       <table class="table table-bordered" style="max-width: 800px; margin: auto;">
         <thead>
           <tr>
-      <th colspan="2">Transaction Details</th>
+      <th colspan="5">Transaction Details</th>
     </tr>  
     <tr>
       <th>Transaction Id</th>
-      <th>Purchase amount</th>
+      <th>Type</th>
+      <th>Status</th>
+      <th>Points Issued</th>
+      <th>Transaction Status</th>
     </tr>
     </thead>
     
@@ -270,7 +288,11 @@ const order_number=document.getElementById('order_no').value;
     <tbody>
       <tr>
       <td>{{ report.tran_id }}</td>
+      <td>{{ report.type }}</td>
+      <td>{{ report.status}}</td>
       <td>{{ report.order_amount }}</td>
+      <td>{{ report.transaction_status }}</td>
+      
     </tr>
     </tbody>
    </table>
@@ -284,16 +306,18 @@ const order_number=document.getElementById('order_no').value;
   <div v-if="transactions" class="profile-container mt-2">
     
     <div class="form-row mt-3">
-      <table class="table table-bordered" style="max-width: 800px; margin: auto;">
+      <table class="table table-bordered" style="max-width: 700px;">
         <thead>
         <tr>
-          <th colspan="7" style="text-align: center;">Recent History</th>
+          <th colspan="9" style="text-align: center;">Recent History</th>
     </tr>
         <tr>
           <th>Transaction ID</th>
           <th>Order ID</th>
+          <th>Type</th>
           <th>Purchase Amount</th>
           <th>Points</th>
+          <th>Status</th>
           <th>Created At</th>
           <th>Staff</th>
           <th>Card</th>
@@ -302,9 +326,11 @@ const order_number=document.getElementById('order_no').value;
       <tbody>
         <tr v-for="history in history" :key="history.id">
           <td>{{ history.id }}</td>
-          <td>{{ history.note }}</td>
+          <td> {{ history.note ? history.note : (history.event === 'initial_bonus_points' ? 'Sign Up Bonus' : history.event) }}</td>
+          <td>{{ history.type }}</td>
           <td>{{ history.purchase_amount }}</td>
           <td>{{ history.points }}</td>
+          <td>{{ history.status }}</td>
           <td>{{ history.created_at }}</td>
           <td>{{ history.staff?.email || 'N/A' }}</td>
           <td>{{ history.card?.name || 'N/A' }}</td>

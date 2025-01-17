@@ -57,6 +57,7 @@ export default function login_code(){
         }
       });
       if(res.status==200){
+        console.log(res);
         return res.data;
       }
       else{
@@ -99,6 +100,8 @@ export default function login_code(){
         note:order_no,
         staffId:setstaffid
     }
+    //console.log(url);
+    //console.log(obj);
     let res = await axios.post(url,obj,{
       headers: {
         Authorization: `Bearer ${authStore.token}`
@@ -308,6 +311,8 @@ if(getstaffid!="Error"){
             Authorization: `Bearer ${authStore.token}`,
           },
         });
+
+        console.log(res);
     
         if (res.status === 200) {
         return res.data;
