@@ -171,9 +171,9 @@ const revert= (id)=>{
 
 
 <template>
-  <div class="container mt-4">
-    <h5 class="mb-4">Transaction History</h5>
-
+  <div class="template_structure mt-4">
+   
+    <h5 class="mb-4">Cancellation / Return</h5>
     <!-- Top Row with Filter Buttons and Pagination -->
     <div class="d-flex justify-content-between align-items-center mb-3">
       <!-- Filter Buttons -->
@@ -190,7 +190,7 @@ const revert= (id)=>{
     <!-- Filter and Pagination Row -->
     <tr>
       <th colspan="8">
-        <div style="display: inline-block; width: 100%; ">
+        <div style="display: inline-block; width: 100%; float: right;">
       <label>Filter</label>    <input type="text"  v-model="search_id" placeholder="By Transaction ID" @blur="fetchTransactions();">
         
           <input type="text"  v-model="search_orderid" placeholder="By Order ID" @blur="fetchTransactions();">
@@ -214,6 +214,13 @@ const revert= (id)=>{
             @click="filterTransactions('success')"
           >
             Success
+          </button>
+          <button
+            class="btn btn-light me-1"
+            :class="{ active: filterStatus === 'pending' }"
+            @click="filterTransactions('pending')"
+          >
+            Pending
           </button>
           <button
             class="btn btn-light me-1"

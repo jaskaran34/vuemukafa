@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <main class="container mt-3">
+    <main class="container-fluid mt-1">
     <!-- Only show layout if the user is authenticated -->
     <div v-if="isAuthenticated" class="d-flex">
       <!-- Sidebar -->
@@ -34,4 +34,9 @@ const authStore = useAuthStore();
 const isAuthenticated = computed(() => authStore.isAuthenticated);
 
 </script>
- 
+ <style>
+.template_structure{
+  margin-left: 8px;
+  margin-top: 8px;;
+}
+</style>

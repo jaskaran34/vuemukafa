@@ -146,7 +146,10 @@ const order_number=document.getElementById('order_no').value;
 </script>
 
 <template>
+  
   <div v-if="ini" class="profile-container mt-3">
+    
+
     <form @submit.prevent="find_member">
       <div class="form-row mb-3">
         <label for="profilename" class="col-sm-2 col-form-label">Mukafa Account:</label>

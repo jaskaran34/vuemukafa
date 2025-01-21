@@ -29,7 +29,7 @@ const chartConfig = {
     responsive: true,
     plugins: {
       legend: {
-        position: 'top', // Position of the legend
+        position: 'bottom', // Position of the legend
       },
       tooltip: {
         enabled: true, // Enable tooltips
@@ -220,33 +220,33 @@ onBeforeUnmount(() => {
 </script>
 <template>
    <div class="row mt-2 p-2">
-            <div class="col-md-4">
-                  <div class="card">
-                        <div class="card-header">
-                              <h5>Total Members</h5>
+            <div class="col-md-3">
+                  <div class="card bg-success text-white">
+                        <div class="card-header text-center border-bottom">
+                              <h5> Members</h5>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body text-center">
                                     30
                               </div>
                   </div>
             </div>
-            <div class="col-md-4">
-              <div class="card">
-                        <div class="card-header">
-                              <h5>Total Cards</h5>
+            <div class="col-md-3">
+              <div class="card bg-info text-white">
+                        <div class="card-header text-center border-bottom">
+                              <h5>Cards</h5>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body text-center">
                                 4    
                               </div>
                   </div>
             </div>
 
-            <div class="col-md-4">
-              <div class="card">
-                        <div class="card-header">
-                              <h5>Total Transactions</h5>
+            <div class="col-md-3">
+              <div class="card bg-primary text-white">
+                        <div class="card-header text-center border-bottom">
+                              <h5> Transactions</h5>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body text-center">
                                 35    
                               </div>
                   </div>
@@ -254,7 +254,7 @@ onBeforeUnmount(() => {
   </div>
       <div class="row mt-2 p-2">
             <div class="col-md-4">
-                  <div class="card">
+                  <div class="card card_graph">
                         <div class="card-header">
                               
                         </div>
@@ -264,7 +264,7 @@ onBeforeUnmount(() => {
                   </div>
             </div>
             <div class="col-md-4">
-                  <div class="card">
+                  <div class="card card_graph">
                         <div class="card-header">
                               
                         </div>
@@ -274,7 +274,7 @@ onBeforeUnmount(() => {
                   </div>
             </div>
             <div class="col-md-4">
-                  <div class="card">
+                  <div class="card card_graph">
                         <div class="card-header">
                               
                         </div>
@@ -287,7 +287,7 @@ onBeforeUnmount(() => {
       </div>
       <div class="row">
             <div class="col-md-4">  
-            <div class="card">
+            <div class="card card_graph">
                   <div class="card-header">
 
                   </div>
@@ -299,7 +299,7 @@ onBeforeUnmount(() => {
       </div>
     </template>
     <style scoped>
-.card{
+.card_graph{
       height: 330px;
 }
 </style>
