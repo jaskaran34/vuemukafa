@@ -24,6 +24,11 @@ const to_date = ref("");
 const cancel_points=ref();
 const balance_after_cancel=ref();
 
+const cancel_tran_id=ref();
+const cancel_remarks=ref();
+
+
+
 const cancelledTransactionIds = ref({});
 const showcancelled = ref({});
 
@@ -89,12 +94,22 @@ const transcation_cancel=async(id)=>{
 
   try{
     if(document.getElementById('otp').value=='1234'){
-    let res=await cancel_transaction(id);
+     let remarks= document.getElementById('remarks').value;
+    let res=await cancel_transaction(id,remarks);
+    
  let targetId=res.id;
+ //console.log(targetId);
   cancel_points.value=res.points;
+
+
+
+
+  cancel_tran_id.value=res.cancel_tran_id;
+  cancel_remarks.value=res.remarks;
  balance_after_cancel.value=res.balance;
 
 const foundTransaction = transactions.value.find(item => item.id == targetId);
+console.log(foundTransaction);
 foundTransaction.deleted_at=res.deleted_at;
 revert(id); 
 
@@ -265,10 +280,10 @@ const revert= (id)=>{
                         <td>{{ transaction.type }}</td>
                         <td>{{ transaction.purchase_amount  }}</td>
                         <td>{{ transaction.points }}</td>
-                        <td v-if="transaction.deleted_at">
+                        <td v-if="transaction.status=='pending'">
                             <button @click="cancel(transaction.id,index)" class="btn btn-danger">Cancel / Refund</button>
                         </td>
-                        <td v-if="!transaction.deleted_at"> {{transaction.status }}</td>
+                        <td v-if="transaction.status!='pending'"> {{transaction.status }}</td>
                     </tr>
                     <tr v-if="cancelledTransactionIds[transaction.id]">
                       <td colspan="8">
@@ -284,8 +299,9 @@ const revert= (id)=>{
             </div>
 
             <div class="d-flex align-items-center me-3">
-                <label for="otp" class="form-label mb-0 me-2">Enter OTP:</label>
-                <input type="text" class="form-control" id="otp" placeholder="Enter OTP" style="width: 250px;">
+                <label for="Remarks" class="form-label mb-0 me-2">Remarks:</label>
+                <input type="textarea"    class="form-control" id="remarks" placeholder="Enter Remarks" 
+                style="width: 250px;height: 100px;">
             </div>
 
             <!-- Submit and Close buttons -->
@@ -307,12 +323,15 @@ const revert= (id)=>{
         <div class="d-flex justify-content-between align-items-center mb-3">
           <table class="table table-bordered" style="max-width: 500px; margin: auto;">
             <thead>
-              <tr><th colspan="3" style="text-align: center;">Transaction Cancelled</th></tr>
+              <tr><th colspan="5" style="text-align: center;">Transaction Cancelled</th></tr>
             
             </thead>
             <tbody>
               <tr>
-                <td>Reference no {{ transaction.id }}</td>
+               
+                <td>Reference no {{ cancel_tran_id }}</td>
+                <td>Transaction cancelled {{ transaction.id }}</td>
+                <td>Remarks {{ cancel_remarks }}</td>
                 <td>Points Cancelled {{ cancel_points }}</td>
                 <td>Balance {{ balance_after_cancel }}</td>
 

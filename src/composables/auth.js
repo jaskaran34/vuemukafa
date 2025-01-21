@@ -303,10 +303,13 @@ if(getstaffid!="Error"){
         
     }
 
-    const cancel_transaction = async (id) => {
+    const cancel_transaction = async (id,remarks) => {
       try {
         const url = `${authStore.baseURL}/partner/transactions/${id}`;
         const res = await axios.delete(url, {
+          data: {
+            remarks: remarks, 
+          },
           headers: {
             Authorization: `Bearer ${authStore.token}`,
           },
@@ -337,8 +340,9 @@ if(getstaffid!="Error"){
           }
         });
     
+
         if (res.status === 200) {
-         //console.log(res.data);
+         
           return res;
         } else {
           throw new Error('Failed to find member');
