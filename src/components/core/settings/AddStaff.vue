@@ -123,7 +123,7 @@ if(form.value.stafftype==""){
 </script>
 
 <template>
-  <div class="profile-container" >
+  <div class="template_structure" >
     <h5 class="mb-4">Add Staff</h5>
     <form @submit.prevent="addstaff">
       <!-- Name Field -->

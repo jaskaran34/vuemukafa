@@ -36,7 +36,10 @@ const isAuthenticated = computed(() => authStore.isAuthenticated);
 </script>
  <style>
 .template_structure{
-  margin-left: 8px;
+  margin-left: 12px;
   margin-top: 8px;;
+}
+.form-control{
+width: 500px !important;
 }
 </style>

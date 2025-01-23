@@ -16,6 +16,8 @@ import TransactionsReport from '@/components/core/Reports/TransactionsReport.vue
 
 import AddStaff from '@/components/core/settings/AddStaff.vue';
 import BankAccounts from '@/components/core/settings/BankAccounts.vue';
+import AddMember from '@/components/core/settings/AddMember.vue';
+
 
 import ProfileUser from '@/components/auth/ProfileUser.vue';
 import TemporaryReload from '@/components/design/TemporaryReload.vue';
@@ -37,6 +39,8 @@ const routes = [
   { path: '/settings_bankaccounts', name: 'settings_bankaccounts', component: BankAccounts, meta: { requiresAuth: true } },
 
   { path: '/profile', name: 'profile', component: ProfileUser, meta: { requiresAuth: true } },
+
+  { path: '/settings_addmember', name: 'settings_addmember', component: AddMember, meta: { requiresAuth: true } },
 
   { path: '/reload', name: 'reload', component: TemporaryReload },
   /*

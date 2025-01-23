@@ -229,6 +229,13 @@ const revert= (id)=>{
           >
             Cancelled
           </button>
+          <button
+            class="btn btn-light me-1"
+            :class="{ active: filterStatus === 'refunded' }"
+            @click="filterTransactions('refunded')"
+          >
+          Refunded
+          </button>
         </div>
       </th>
       <th colspan="5" class="text-end">

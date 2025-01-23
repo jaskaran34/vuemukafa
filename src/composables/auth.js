@@ -174,7 +174,20 @@ export default function login_code(){
     };
 
 
+const all_members= async()=>{
+  let url =`${authStore.baseURL}/partner/member/get/all`;
 
+  let res = await axios.get(url,{
+    headers: {
+      Authorization: `Bearer ${authStore.token}`
+    }
+  });
+
+  if(res.status==200){
+    return res.data;
+  }
+
+}
 
     const getstaff = async()=>{
       let url =`${authStore.baseURL}/partner/staff`;
@@ -352,6 +365,32 @@ if(getstaffid!="Error"){
       }
     }
 
+    const register_member= async(member)=>{
+      let url =`${authStore.baseURL}/member/register`;
+
+     let obj={
+            "email":member.member_email,
+            "password":member.member_password,
+            "name":member.member_name,
+            "phone":member.member_phone,
+            "phone_prefix":member.member_countryCode,
+            "partner_id":authStore.user.id.toString()
+              }
+
+     
+      let res = await axios.post(url,obj,{
+        headers: {
+          Authorization: `Bearer ${authStore.token}`
+        }
+      });
+
+      if(res.status==201){
+        alert('Success');
+   return res.data;
+      }
+      
+    }
+
     const getUser= async (token) =>{
         let url =`${authStore.baseURL}/partner`;
 
@@ -419,6 +458,8 @@ if(getstaffid!="Error"){
         redeempoints,
         member_tran_history,
         alltransactions,
-        cancel_transaction
+        cancel_transaction,
+        register_member,
+        all_members
       };
 }

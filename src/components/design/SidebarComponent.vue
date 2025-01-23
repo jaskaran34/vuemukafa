@@ -87,6 +87,10 @@
               </li>
               <li>
                 <router-link class="nav-link" 
+               :to="{ name: 'settings_addmember' }">Add Member</router-link>
+              </li>
+              <li>
+                <router-link class="nav-link" 
                :to="{ name: 'settings_bankaccounts' }">Bank Accounts</router-link>
               </li>
               

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted,watch } from "vue";
 import login_code from '@/composables/auth.js';
-const { alltransactions,cancel_transaction } = login_code();
+const { alltransactions } = login_code();
 import { useAuthStore } from '@/store/authStore';
 
 const authStore = useAuthStore();
@@ -14,24 +14,13 @@ const pagination = ref({
   next_page_url: null,
 });
 const recordsPerPage = ref(10); // Default records per page
-const filterStatus = ref(""); // Default filter status
+const filterStatus = ref("success"); // Default filter status
 const reset_page_setting=ref(true);
 const search_id = ref("");
 const search_orderid = ref("");
 
 const from_date = ref("");
 const to_date = ref("");
-const cancel_points=ref();
-const balance_after_cancel=ref();
-
-const cancel_tran_id=ref();
-const cancel_remarks=ref();
-
-
-
-const cancelledTransactionIds = ref({});
-const showcancelled = ref({});
-
 
 watch(
   filterStatus,
@@ -85,54 +74,6 @@ const fetchTransactions = async (pageurl = null) => {
 
 
 
-const transcation_cancel=async(id)=>{
-
-
-  try{
-    if(document.getElementById('otp').value=='1234'){
-     let remarks= document.getElementById('remarks').value;
-    let res=await cancel_transaction(id,remarks);
-    
- let targetId=res.id;
- //console.log(targetId);
-  cancel_points.value=res.points;
-
-
-
-
-  cancel_tran_id.value=res.cancel_tran_id;
-  cancel_remarks.value=res.remarks;
- balance_after_cancel.value=res.balance;
-
-const foundTransaction = transactions.value.find(item => item.id == targetId);
-console.log(foundTransaction);
-foundTransaction.deleted_at=res.deleted_at;
-revert(id); 
-
-showcancelled.value[id] = `Transaction ${id} `;
-
-
-setTimeout(() => { 
-    
-    
-  delete showcancelled.value[id];
-  cancel_points.value='';
-  balance_after_cancel.value='';
-}, 5000); 
-
-    }
-else{
-  alert('Invalid Otp');
-}
-  }
-  catch(e)
-  {
-    alert(e);
-  }
-
-}
-
-
 
 
 // Fetch initial data on component mount
@@ -145,13 +86,6 @@ onMounted(() => {
 
 
 
-const revert= (id)=>{
-
-
-  delete cancelledTransactionIds.value[id];
-  
-
-}
 
 
 const printTable = (tableId) => {
@@ -271,68 +205,7 @@ const printTable = (tableId) => {
                         <td>{{ transaction.remarks  }}</td>
                       
                     </tr>
-                    <tr v-if="cancelledTransactionIds[transaction.id]">
-                      <td colspan="8">
-    <div class="card p-4">
-        <!-- Everything in a flex row -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <p class="mb-0 me-3">Are you sure you want to cancel transaction #{{ transaction.id }}?</p>
-
-            <!-- OTP input field and Submit button aligned on the same line -->
-            <div class="d-flex align-items-center me-3">
-                <label for="otp" class="form-label mb-0 me-2">Enter OTP:</label>
-                <input type="text" class="form-control" id="otp" placeholder="Enter OTP" style="width: 250px;">
-            </div>
-
-            <div class="d-flex align-items-center me-3">
-                <label for="Remarks" class="form-label mb-0 me-2">Remarks:</label>
-                <input type="textarea"    class="form-control" id="remarks" placeholder="Enter Remarks" 
-                style="width: 250px;height: 100px;">
-            </div>
-
-            <!-- Submit and Close buttons -->
-            <button @click="transcation_cancel(transaction.id)" class="btn btn-danger ms-2">Submit</button>
-            <button @click="revert(transaction.id)" class="btn btn-success ms-2">Close</button>
-        </div>
-    </div>
-</td>
-
-</tr>
-
-
-
-
-<tr v-if="showcancelled[transaction.id]">
-                      <td colspan="8">
-    <div class="card p-4">
-        <!-- Everything in a flex row -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <table class="table table-bordered" style="max-width: 500px; margin: auto;">
-            <thead>
-              <tr><th colspan="5" style="text-align: center;">Transaction Cancelled</th></tr>
-            
-            </thead>
-            <tbody>
-              <tr>
-               
-                <td>Reference no {{ cancel_tran_id }}</td>
-                <td>Transaction cancelled {{ transaction.id }}</td>
-                <td>Remarks {{ cancel_remarks }}</td>
-                <td>Points Cancelled {{ cancel_points }}</td>
-                <td>Balance {{ balance_after_cancel }}</td>
-
-          
-              </tr>
-            </tbody>
-
-          </table>
-                  
-
-        </div>
-    </div>
-</td>
-
-</tr>
+                 
                 </template>
         
       </tbody>
@@ -353,23 +226,3 @@ const printTable = (tableId) => {
     border-color: #007bff; /* Optional: Match border with background */
   }
 </style>
-
-
-
-<!--        
-           
-           
-             <tr>
-              
-               <th>ID</th>
-               <th>Date</th>
-               <th>Reference Id</th>
-               <th>Mukafa No </th>
-               <th>Order ID</th>
-               <th>Debit </th>
-               <th>Credit </th>
-               <th>Status</th>
-               <th>Transaction Status</th>
-               <th>Remarks</th>
-
--->
