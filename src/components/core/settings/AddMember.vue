@@ -1,5 +1,5 @@
 <script setup>
-import { ref,onMounted } from 'vue';
+import { ref,onMounted, computed } from 'vue';
 import login_code from '@/composables/auth.js';
 const { register_member,all_members } = login_code();
 
@@ -37,9 +37,12 @@ const form = ref({
   member_email: '',
   member_password: '',
   member_phone: '',
-  member_countryCode:'+974'
+  member_countryCode:'+974',
+  member_dob:'',
+  member_ad:''
 });
 
+const todayDate = computed(() => new Date().toISOString().split('T')[0]);
 
 let isSubmitted=ref(false);
 
@@ -48,7 +51,8 @@ const errors=ref({
     name:'',
     password:'',
     phone:'',
-    points:''
+    points:'',
+    dob:''
 });
 
 
@@ -60,6 +64,8 @@ const addmember = async () => {
     errors.value.name='';
     errors.value.email='';
     errors.value.phone='';
+    errors.value.dob='';
+    errors.value.password='';
     isSubmitted.value=true;
 
     const nameRegex = /^[a-zA-Z\s]+$/;
@@ -95,6 +101,19 @@ const addmember = async () => {
         return;
         }
     
+
+    if (!form.value.member_dob) {
+    errors.value.dob = 'Date of birth cannot be empty.';
+    return;
+  }
+
+  const birthDate = new Date(form.value.member_dob);
+  const today = new Date();
+
+  if (birthDate > today) {
+    errors.value.dob = 'Date of birth cannot be in the future.';
+    return;
+  }    
 
   try{        
     await  register_member(form.value);
@@ -178,6 +197,28 @@ const addmember = async () => {
         <span v-if="isSubmitted && errors.password" class="text-danger">{{ errors.password }}</span>
       </div>
 
+      <div class="mb-3">
+        <label for="memberbirthday" class="form-label">Birth Date</label>
+        <input
+          type="date"
+          id="member_dob"
+          :max="todayDate"
+          v-model="form.member_dob"
+          class="form-control"
+        />
+        <span v-if="isSubmitted && errors.dob" class="text-danger">{{ errors.dob }}</span>
+      </div>
+
+      <div class="mb-3">
+        <label for="memberbirthday" class="form-label">Anniversary Date</label>
+        <input
+          type="date"
+          id="member_ad"
+          v-model="form.member_ad"
+          class="form-control"
+        />
+        
+      </div>
 
       
 
@@ -185,7 +226,7 @@ const addmember = async () => {
     </form>
     <span v-if="errors.points" class="text-danger">{{ errors.points }}</span>
      <h5 class="mb-2 mt-4">Members List</h5>
-    <table class="table table-striped table-bordered">
+    <table class="table table-striped table-bordered" >
       <thead class="table-dark">
         <tr>
           <th></th>
@@ -193,6 +234,10 @@ const addmember = async () => {
           <th>Email</th>
           <th>Mobile</th>
           <th>unique Identifier</th>
+          <th>Card</th>
+          <th>Card UID</th>
+          <th>Balance</th>
+          <th>Pending</th>
           <th>created at</th>
         </tr>
       </thead>
@@ -204,7 +249,13 @@ const addmember = async () => {
           <td>{{ member.email }}</td>
           <td>{{ member.phone_prefix }}{{ member.phone }}</td>
           <td>{{ member.unique_identifier }}</td>
-          <td>{{ member.created_at }}</td>
+
+          <td>{{ member.card_name }}</td>
+          <td>{{ member.card_uid }}</td>
+          <td>{{ member.balance }}</td>
+          <td>{{ member.balance_pending }}</td>
+
+          <td>{{ member.createddate }}</td>
 
         </tr>
       </tbody>

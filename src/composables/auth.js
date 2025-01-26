@@ -51,6 +51,9 @@ export default function login_code(){
           note:order_no,
           staffId:setstaffid
       }
+
+      console.log(obj);
+      console.log(url);
       let res = await axios.post(url,obj,{
         headers: {
           Authorization: `Bearer ${authStore.token}`
@@ -374,7 +377,9 @@ if(getstaffid!="Error"){
             "name":member.member_name,
             "phone":member.member_phone,
             "phone_prefix":member.member_countryCode,
-            "partner_id":authStore.user.id.toString()
+            "partner_id":authStore.user.id.toString(),
+            "birthday":member.member_dob,
+            "anniversary_date":member.member_ad
               }
 
      

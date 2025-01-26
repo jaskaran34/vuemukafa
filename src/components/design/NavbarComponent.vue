@@ -3,6 +3,7 @@ import { useAuthStore } from '@/store/authStore';
 import { ref, onMounted } from 'vue';
 import login_code from '@/composables/auth.js';
 
+
 const { logoutUser, returnUser } = login_code();
 const authStore = useAuthStore();
 
@@ -11,6 +12,8 @@ const login_type = ref('');
 
 onMounted(async () => {
   let user = await returnUser();
+ // console.log(authStore.user_type);
+  if(authStore.user_type){
   profile_pic.value = user.avatar;
 
   if (authStore.user_type === 'P') {
@@ -19,6 +22,12 @@ onMounted(async () => {
   if (authStore.user_type === 'S') {
     login_type.value = "Staff";
   }
+
+}
+else{
+  logoutUser();
+  
+}
 });
 
 const logout = () => {

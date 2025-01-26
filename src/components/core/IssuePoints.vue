@@ -35,6 +35,14 @@ const phone_no = ref('');
 const ini = ref(true);
 
 const find_member = async () => {
+
+  errors.value.account='';
+errors.value.otp='';
+errors.value.order_no='';
+errors.value.order_amt='';
+errors.value.points='';
+
+
   try {
    
  let result = await findmember(document.getElementById('mukafa_account').value);
@@ -61,6 +69,12 @@ const find_member = async () => {
 };
 
 const verify_otp = async () => {
+
+  errors.value.account='';
+errors.value.otp='';
+errors.value.order_no='';
+errors.value.order_amt='';
+errors.value.points='';
  
     if(document.getElementById('otp').value=='1234'){
     
@@ -88,6 +102,13 @@ const report=ref({
   status:''
 });
 const issue_points = async () => {
+
+
+errors.value.account='';
+errors.value.otp='';
+errors.value.order_no='';
+errors.value.order_amt='';
+errors.value.points='';
  
   const value = document.getElementById('order_amt').value;
 const order_number=document.getElementById('order_no').value;

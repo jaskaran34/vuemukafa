@@ -21,7 +21,7 @@ const submitForm = () => {
               <label for="loginas" class="form-label">Login As</label>
             <select
             v-model="login_type"
-            class="form-control"
+            class="form-control" style="width: 350px !important;"
             id="login_type"
             required
           >
@@ -38,7 +38,7 @@ const submitForm = () => {
                 type="email"
                 id="email"
                 v-model="email"
-                class="form-control"
+                class="form-control" style="width: 350px !important;"
                 required
               />
             </div>
@@ -49,7 +49,7 @@ const submitForm = () => {
                 type="password"
                 id="password"
                 v-model="password"
-                class="form-control"
+                class="form-control" style="width: 350px !important;"
                 required
               />
             </div>
