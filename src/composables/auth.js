@@ -322,6 +322,7 @@ if(getstaffid!="Error"){
     const cancel_transaction = async (id,remarks) => {
       try {
         const url = `${authStore.baseURL}/partner/transactions/${id}`;
+        console.log(url);
         const res = await axios.delete(url, {
           data: {
             remarks: remarks, 
@@ -349,7 +350,7 @@ if(getstaffid!="Error"){
           //console.log(url);console.log(params);
         }
         const url = pageurl ||`${baseUrl}?${params.toString()}`;
-     
+        console.log(url);
         let res = await axios.get(url, {
           headers: {
             Authorization: `Bearer ${authStore.token}`
@@ -461,9 +462,13 @@ if(getstaffid!="Error"){
         findmember,
         addtransaction,
         redeempoints,
+        
         member_tran_history,
+        
+        
         alltransactions,
         cancel_transaction,
+
         register_member,
         all_members
       };

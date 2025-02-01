@@ -125,7 +125,7 @@ const printTable = (tableId) => {
       <thead class="table-light align-middle">
     <!-- Filter and Pagination Row -->
     <tr>
-      <th colspan="9">
+      <th colspan="10">
         <div style="display: inline-block; width: 100%;">
       <label>Filter</label>    <input type="text"  v-model="search_id" placeholder="By Transaction ID" @blur="fetchTransactions();">
         
@@ -139,7 +139,7 @@ const printTable = (tableId) => {
        </tr>
     <tr>
       
-      <th colspan="9" class="text-end">
+      <th colspan="10" class="text-end">
         <div class="d-flex justify-content-end align-items-center">
           <button
             class="btn btn-light me-1"
@@ -200,7 +200,6 @@ const printTable = (tableId) => {
                         <td>{{ transaction.note  }}</td>
                         <td v-if="transaction.type == 'Debit'">{{ transaction.points }}</td> <td v-else></td>
                         <td v-if="transaction.type == 'Credit'">{{ transaction.points }}</td> <td v-else></td>
-                        
                         <td>{{ transaction.status }}</td>
                         <td>{{ transaction.remarks  }}</td>
                       

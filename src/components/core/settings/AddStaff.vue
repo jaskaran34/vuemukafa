@@ -187,17 +187,19 @@ if(form.value.stafftype==""){
     <table class="table table-striped table-bordered">
       <thead class="table-dark">
         <tr>
-          <th></th>
-          <th>Staff Name</th>
+          <th>S.no</th>
+          <th>Name</th>
+          <th>UID</th>
           <th>Email</th>
           <th>Created At</th>
           <th>Type of Staff</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="staff in staffData" :key="staff.id">
-          <td>{{ staff.id }}</td>
+        <tr v-for="(staff,index) in staffData" :key="staff.id">
+          <td>{{ index+1 }}</td>
           <td>{{ staff.name }}</td>
+          <td>{{ staff.unique_identifier }}</td>
           <td>{{ staff.email }}</td>
           <td>{{ staff.created_at }}</td>
           <td>{{ getStaffLabel(staff.meta)}}</td>

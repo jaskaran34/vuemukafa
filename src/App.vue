@@ -42,4 +42,7 @@ const isAuthenticated = computed(() => authStore.isAuthenticated);
 .form-control{
 width: 500px !important;
 }
+.amt{
+  text-align: right;
+}
 </style>

@@ -142,6 +142,7 @@ const order_number=document.getElementById('order_no').value;
  report.value.transaction_status=result.transaction_status;
  report.value.type=result.type;
  report.value.status=result.status;
+ 
 
  setTimeout(() => { 
     
@@ -330,34 +331,40 @@ const order_number=document.getElementById('order_no').value;
   <div v-if="transactions" class="profile-container mt-2">
     
     <div class="form-row mt-3">
-      <table class="table table-bordered" style="max-width: 700px;">
+      <table class="table table-bordered" style="overflow-x: auto;">
         <thead>
         <tr>
-          <th colspan="9" style="text-align: center;">Recent History</th>
+          <th colspan="11" style="text-align: center;">Recent History</th>
     </tr>
         <tr>
+          <th>S.no</th>
+          <th>Date</th>
           <th>Transaction ID</th>
           <th>Order ID</th>
+          <th>Description</th>
           <th>Type</th>
-          <th>Purchase Amount</th>
+          <th>Amount</th>
           <th>Points</th>
           <th>Status</th>
-          <th>Created At</th>
+          
           <th>Staff</th>
           <th>Card</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="history in history" :key="history.id">
+        <tr v-for="(history,index_id) in history" :key="history.id">
+          <td>{{ index_id + 1 }}</td>
+          <td class="no-wrap">{{ history.created_date }}</td>
           <td>{{ history.id }}</td>
           <td> {{ history.note ? history.note : (history.event === 'initial_bonus_points' ? 'Sign Up Bonus' : history.event) }}</td>
+          <td>{{ history.remarks }}</td>
           <td>{{ history.type }}</td>
-          <td>{{ history.purchase_amount }}</td>
-          <td>{{ history.points }}</td>
+          <td class="amt">{{ history.purchase_amount }}</td>
+          <td class="amt">{{ history.points }}</td>
           <td>{{ history.status }}</td>
-          <td>{{ history.created_at }}</td>
-          <td>{{ history.staff?.email || 'N/A' }}</td>
-          <td>{{ history.card?.name || 'N/A' }}</td>
+          
+          <td class="no-wrap">{{ history.staff?.unique_identifier || 'N/A' }}</td>
+          <td class="no-wrap">{{ history.card?.name || 'N/A' }}</td>
         </tr>
       </tbody>
     </table>
@@ -378,5 +385,8 @@ const order_number=document.getElementById('order_no').value;
   padding: 30px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.no-wrap {
+  white-space: nowrap;
 }
 </style>
