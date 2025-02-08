@@ -17,7 +17,9 @@ onMounted(async()=>{
 
   if (authStore.token) {
     let result=await all_members();
+    //
     memberData.value = result; 
+    console.log(memberData.value);
   } else {
     console.log('22');
     router.push({name: 'userLogin'});
@@ -70,8 +72,9 @@ const addmember = async () => {
 
     const nameRegex = /^[a-zA-Z\s]+$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
-    const mobileRegex = /^\d{10}$/;
+    const mobileRegex = /^\d{8,10}$/;
 
+    /*
     const uppercaseRegex = /[A-Z]/; 
     const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
 
@@ -81,7 +84,8 @@ const addmember = async () => {
         errors.value.password = 'Invalid Password';
         return; 
     }
-   
+   */
+  
     if (!mobileRegex.test(form.value.member_phone)) { 
             errors.value.phone = 'Invalid mobile number. ';
             return;
@@ -96,10 +100,11 @@ const addmember = async () => {
         return;
          }
 
-    if (!emailRegex.test(form.value.member_email)) {
-        errors.value.email = 'Invalid email address'; 
-        return;
-        }
+         if (form.value.member_email && !emailRegex.test(form.value.member_email)) {
+            errors.value.email = 'Invalid email address';
+            return;
+       }
+
     
 
     if (!form.value.member_dob) {
@@ -184,7 +189,10 @@ const addmember = async () => {
   <span v-if="isSubmitted && errors.phone" class="text-danger">{{ errors.phone }}</span>
 </div>
 
+
+
       <!-- Password Field -->
+<!-- 
       <div class="mb-3">
         <label for="memberpassword" class="form-label">Password</label>
         <input
@@ -196,7 +204,7 @@ const addmember = async () => {
         />
         <span v-if="isSubmitted && errors.password" class="text-danger">{{ errors.password }}</span>
       </div>
-
+-->
       <div class="mb-3">
         <label for="memberbirthday" class="form-label">Birth Date</label>
         <input
@@ -248,7 +256,7 @@ const addmember = async () => {
           <td>{{ member.name }}</td>
           <td>{{ member.email }}</td>
           <td>{{ member.phone_prefix }}{{ member.phone }}</td>
-          <td>{{ member.unique_identifier }}</td>
+          <td>{{ member.mukafa_number }}</td>
 
           <td>{{ member.card_name }}</td>
           <td>{{ member.card_uid }}</td>

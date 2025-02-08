@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import login_code from '@/composables/auth.js';
-const { findmember,member_tran_history,redeempoints } = login_code();
+const { findmember,member_tran_history,redeempoints,sendotp } = login_code();
 
 const history = ref([]);
 const ini = ref(true);
@@ -35,7 +35,6 @@ const member_account=ref({
   member_points:'',
   member_redeem_amt:'',
   member_currency:'',
-  member_cardid:'',
   member_carduid:'',
   member_cardname:'',
    balance:'',
@@ -49,25 +48,29 @@ const find_member = async () => {
     let result = await findmember(document.getElementById('mukafa_account').value);
 
     member.value=result.member;
-    member_account.value.member_cardid=result.card_id;
     member_account.value.member_carduid=result.cardUID;
     member_account.value.member_cardname=result.card_name;
-    member_account.value.member_points=result.points;
+    member_account.value.member_points=result.balance;
     member_account.value.member_redeem_amt=result.amount;
     member_account.value.member_currency=result.currency;
 
-    member_account.value.balance=result.points;
+    member_account.value.balance=result.balance;
     member_account.value.pending_balance=result.pending_points;
 
     phone_no.value = member.value.phone;
     
     member_account.value.member_name=member.value.name;
     member_account.value.member_email=member.value.email;
-    member_account.value.member_unique_identifier=member.value.unique_identifier;
+    member_account.value.member_unique_identifier=member.value.mukafa_number;
     member_account.value.member_phone=member.value.phone;
 
     transactions.value=false;
     otp.value = true;
+
+    let send_otp=Math.floor(100000 + Math.random() * 900000);
+    document.getElementById('otp_val').value=send_otp;
+    await sendotp(send_otp);
+
    // console.log(member.value.phone);
   } catch (error) {
     errors.value.account = 'An error occurred while fetching member data.';  
@@ -76,7 +79,7 @@ const find_member = async () => {
 
 const verify_otp = async () => {
  
- if(document.getElementById('otp').value=='1234'){
+ if(document.getElementById('otp').value==document.getElementById('otp_val').value){
  
    otp.value = false;
    ini.value=false;
@@ -139,10 +142,9 @@ const order_number=document.getElementById('order_no').value;
  order.value=false;
  history.value=await member_tran_history(member_account.value.member_unique_identifier);
  report.value.display=true;
- report.value.order_amount=result.points;
+ report.value.order_amount=result.mukafa_points;
  report.value.tran_id=result.id;
 
- report.value.transaction_status=result.transaction_status;
  report.value.type=result.type;
  
 
@@ -165,6 +167,7 @@ const order_number=document.getElementById('order_no').value;
 
 </script>
 <template>
+   <input type="hidden" value="" id="otp_val">
     <div v-if="ini" class="profile-container mt-3">
       <form @submit.prevent="find_member">
         <div class="form-row mb-3">
@@ -195,7 +198,7 @@ const order_number=document.getElementById('order_no').value;
         <label for="profilename" class="col-sm-2 col-form-label">Enter Otp:</label>
         <div class="col-sm-10">
           <input
-          value="1234"
+          value=""
             type="text"
             id="otp"
             class="form-control"
@@ -304,7 +307,6 @@ const order_number=document.getElementById('order_no').value;
       <th>Transaction Id</th>
       <th>Type</th>
       <th>Purchase Redeemed</th>
-      <th>Transaction Status</th>
     </tr>
     </thead>
     
@@ -314,7 +316,7 @@ const order_number=document.getElementById('order_no').value;
       <td>{{ report.tran_id }}</td>
       <td>{{ report.type }}</td>
       <td>{{ report.order_amount }}</td>
-      <td>{{ report.transaction_status }}</td>
+     
 
       
     </tr>
@@ -328,34 +330,39 @@ const order_number=document.getElementById('order_no').value;
   <div v-if="transactions" class="profile-container mt-2">
     
     <div class="form-row mt-3">
-      <table class="table table-bordered" style="max-width: 800px; margin: auto;">
+      <table class="table table-bordered" style="overflow-x: auto;">
         <thead>
         <tr>
-          <th colspan="7" style="text-align: center;">Recent History</th>
+          <th colspan="11" style="text-align: center;">Recent History</th>
     </tr>
         <tr>
+          <th>S.no</th>
+          <th>Date</th>
           <th>Transaction ID</th>
           <th>Order ID</th>
+          <th>Description</th>
           <th>Type</th>
-          <th>Purchase Amount</th>
+          <th>Amount</th>
           <th>Points</th>
           <th>Status</th>
-          <th>Created At</th>
-          <th>Staff</th>
+          
+          
           <th>Card</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="history in history" :key="history.id">
+        <tr v-for="(history,index_id) in history" :key="history.id">
+          <td>{{ index_id + 1 }}</td>
+          <td class="no-wrap">{{ history.created_date }}</td>
           <td>{{ history.id }}</td>
-          <td> {{ history.note ? history.note : (history.event === 'initial_bonus_points' ? 'Sign Up Bonus' : history.event) }}</td>
+          <td> {{ history.order_id ? history.order_id : (history.event === 'initial_bonus_points' ? 'Sign Up Bonus' : history.event) }}</td>
+          <td>{{ history.remarks }}</td>
           <td>{{ history.type }}</td>
-          <td>{{ history.purchase_amount }}</td>
-          <td>{{ history.points }}</td>
+          <td class="amt">{{ history.purchase_amount }}</td>
+          <td class="amt">{{ history.mukafa_points }}</td>
           <td>{{ history.status }}</td>
-          <td>{{ history.created_at }}</td>
-          <td>{{ history.staff?.email || 'N/A' }}</td>
-          <td>{{ history.card?.name || 'N/A' }}</td>
+          
+          <td class="no-wrap">{{ history.card_name || 'N/A' }}</td>
         </tr>
       </tbody>
     </table>

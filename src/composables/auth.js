@@ -48,19 +48,19 @@ export default function login_code(){
         let pts= parseInt(order_amt)* 100;
       let  obj={
         points:pts,
-          note:order_no,
-          staffId:setstaffid
+        order_id:order_no,
+        integration_id:setstaffid
       }
 
-      console.log(obj);
-      console.log(url);
+      //console.log(obj);
+      //console.log(url);
       let res = await axios.post(url,obj,{
         headers: {
           Authorization: `Bearer ${authStore.token}`
         }
       });
-      if(res.status==200){
-        console.log(res);
+      if(res.status==201){
+        
         return res.data;
       }
       else{
@@ -100,17 +100,16 @@ export default function login_code(){
       let url =`${authStore.baseURL}/partner/cards/${carduid}/${memberuid}/transactions/purchases`;
     let  obj={
         purchase_amount:order_amt,
-        note:order_no,
-        staffId:setstaffid
+        order_id:order_no,
+        integration_id:setstaffid
     }
-    //console.log(url);
-    //console.log(obj);
+   
     let res = await axios.post(url,obj,{
       headers: {
         Authorization: `Bearer ${authStore.token}`
       }
     });
-    if(res.status==200){
+    if(res.status==201){
       return res.data;
     }
     else{
@@ -176,6 +175,27 @@ export default function login_code(){
       }
     };
 
+    const sendotp = async (get_otp) => {
+      console.log(get_otp);
+      try {
+        let url = `https://dev-mukafa.js.qa/api/en-us/v1/partner/otp/${get_otp}`;
+        let res = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${authStore.token}`
+          }
+        });
+    
+        if (res.status === 200) {
+          return res.data;
+        } else {
+          throw new Error('Failed to find member');
+        }
+      } catch (error) {
+        throw new Error(error?.response?.data?.message || error.message || 'Network error');
+      }
+    };
+
+    
 
 const all_members= async()=>{
   let url =`${authStore.baseURL}/partner/member/get/all`;
@@ -187,7 +207,7 @@ const all_members= async()=>{
   });
 
   if(res.status==200){
-    return res.data;
+    return res.data.data;
   }
 
 }
@@ -350,7 +370,7 @@ if(getstaffid!="Error"){
           //console.log(url);console.log(params);
         }
         const url = pageurl ||`${baseUrl}?${params.toString()}`;
-        console.log(url);
+        //console.log(url);
         let res = await axios.get(url, {
           headers: {
             Authorization: `Bearer ${authStore.token}`
@@ -374,7 +394,6 @@ if(getstaffid!="Error"){
 
      let obj={
             "email":member.member_email,
-            "password":member.member_password,
             "name":member.member_name,
             "phone":member.member_phone,
             "phone_prefix":member.member_countryCode,
@@ -392,7 +411,7 @@ if(getstaffid!="Error"){
 
       if(res.status==201){
         alert('Success');
-   return res.data;
+       return res.data;
       }
       
     }
@@ -470,6 +489,7 @@ if(getstaffid!="Error"){
         cancel_transaction,
 
         register_member,
-        all_members
+        all_members,
+        sendotp
       };
 }

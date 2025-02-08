@@ -47,8 +47,8 @@ const fetchTransactions = async (pageurl = null) => {
     page: pagination.value.current_page,
     per_page: recordsPerPage.value,
     status: filterStatus.value,
-    id: search_id.value,
-    note:search_orderid.value,
+    transaction_id: search_id.value,
+    order_id:search_orderid.value,
     from_date:from_date.value,
     to_date:to_date.value
   });
@@ -57,8 +57,10 @@ const fetchTransactions = async (pageurl = null) => {
     
    const res= await alltransactions(pageurl,params);
     
+   console.log(res);
   
     transactions.value = res.data.data;
+    
     pagination.value = {
       current_page: res.data.current_page,
       last_page: res.data.last_page,

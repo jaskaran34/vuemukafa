@@ -19,7 +19,10 @@
         <li class="nav-item mt-4">
           <router-link class="nav-link" :to="{ name: 'Dashboard' }">Dashboard</router-link>
         </li>
-
+        <li class="nav-item">
+        <router-link class="nav-link" 
+               :to="{ name: 'settings_addmember' }">Register Customer</router-link>
+              </li>
         <li class="nav-item">
           <router-link class="nav-link"
             :to="{ name: 'issue_points' }">Issue Points</router-link>
@@ -85,10 +88,7 @@
                 <router-link class="nav-link" 
                  :to="{ name: 'settings_addstaff' }">Add Staff</router-link>
               </li>
-              <li>
-                <router-link class="nav-link" 
-               :to="{ name: 'settings_addmember' }">Add Member</router-link>
-              </li>
+              
               <li>
                 <router-link class="nav-link" 
                :to="{ name: 'settings_bankaccounts' }">Bank Accounts</router-link>
