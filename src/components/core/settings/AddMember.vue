@@ -241,7 +241,7 @@ const addmember = async () => {
           <th> Name</th>
           <th>Email</th>
           <th>Mobile</th>
-          <th>unique Identifier</th>
+          <th>Mukafa No.</th>
           <th>Card</th>
           <th>Card UID</th>
           <th>Balance</th>

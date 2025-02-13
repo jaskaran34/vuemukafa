@@ -1,7 +1,8 @@
 <script setup>
 import { ref } from 'vue';
+import { v4 as uuidv4 } from 'uuid';
 import login_code from '@/composables/auth.js';
-const { findmember,member_tran_history,redeempoints,sendotp } = login_code();
+const { findmember,member_tran_history,redeempoints,sendotp,verify_otp_backend } = login_code();
 
 const history = ref([]);
 const ini = ref(true);
@@ -65,11 +66,16 @@ const find_member = async () => {
     member_account.value.member_phone=member.value.phone;
 
     transactions.value=false;
+
+
+    let otp_message_id=uuidv4();
+    document.getElementById('otp_message_id').value=otp_message_id;
+   
+    await sendotp(otp_message_id,member_account.value.member_unique_identifier,'redeem');
+
     otp.value = true;
 
-    let send_otp=Math.floor(100000 + Math.random() * 900000);
-    document.getElementById('otp_val').value=send_otp;
-    await sendotp(send_otp);
+    
 
    // console.log(member.value.phone);
   } catch (error) {
@@ -78,23 +84,43 @@ const find_member = async () => {
 };
 
 const verify_otp = async () => {
- 
- if(document.getElementById('otp').value==document.getElementById('otp_val').value){
- 
-   otp.value = false;
+
+errors.value.account='';
+errors.value.otp='';
+errors.value.order_no='';
+errors.value.order_amt='';
+errors.value.points='';
+
+
+try{
+let otp_conf=await verify_otp_backend(document.getElementById('otp_message_id').value,
+                        member_account.value.member_unique_identifier,
+                        'redeem',
+                        document.getElementById('otp').value);
+
+                      
+
+  if(otp_conf=='ok'){
+  
+    otp.value = false;
    ini.value=false;
-   history.value=await member_tran_history(member_account.value.member_unique_identifier);
-   order.value=true;
-   transactions.value=true;
+    history.value=await member_tran_history(member_account.value.member_unique_identifier);
+    order.value=true;
+    transactions.value=true;
 
- }
- else{
-   errors.value.otp='Invalid Otp';
- }
+  }
+  else{
+    errors.value.otp='Invalid Otp';
+  }
 
- 
- 
+}
+catch(error){
+  errors.value.otp='Invalid Otp';
+}
+  
+  
 };
+
 function resetErrors() {
     Object.keys(errors.value).forEach(key => {
         errors.value[key] = null;
@@ -167,7 +193,7 @@ const order_number=document.getElementById('order_no').value;
 
 </script>
 <template>
-   <input type="hidden" value="" id="otp_val">
+   <input type="hidden" value="" id="otp_message_id">
     <div v-if="ini" class="profile-container mt-3">
       <form @submit.prevent="find_member">
         <div class="form-row mb-3">

@@ -14,9 +14,10 @@ const pagination = ref({
   next_page_url: null,
 });
 const recordsPerPage = ref(10); // Default records per page
-const filterStatus = ref("success"); // Default filter status
+const filterStatus = ref("completed"); // Default filter status
 const reset_page_setting=ref(true);
 const search_id = ref("");
+const mukafa_no = ref("");
 const search_orderid = ref("");
 
 const from_date = ref("");
@@ -47,18 +48,23 @@ const fetchTransactions = async (pageurl = null) => {
     page: pagination.value.current_page,
     per_page: recordsPerPage.value,
     status: filterStatus.value,
-    id: search_id.value,
-    note:search_orderid.value,
+    transaction_id: search_id.value,
+    mukafa_no: mukafa_no.value,
+    order_id:search_orderid.value,
     from_date:from_date.value,
     to_date:to_date.value
   });
       
   try{
-    
+ 
+  
    const res= await alltransactions(pageurl,params);
     
   
     transactions.value = res.data.data;
+
+
+    //console.log(transactions.value);
     pagination.value = {
       current_page: res.data.current_page,
       last_page: res.data.last_page,
@@ -129,6 +135,8 @@ const printTable = (tableId) => {
         <div style="display: inline-block; width: 100%;">
       <label>Filter</label>    <input type="text"  v-model="search_id" placeholder="By Transaction ID" @blur="fetchTransactions();">
         
+      <input type="text"  v-model="mukafa_no" placeholder="By Mukafa No." @blur="fetchTransactions();">
+
           <input type="text"  v-model="search_orderid" placeholder="By Order ID" @blur="fetchTransactions();">
         
       
@@ -196,10 +204,10 @@ const printTable = (tableId) => {
                         <td>{{ index+1 }}</td>
                         <td>{{ transaction.created_date }}</td>
                         <td>{{ transaction.id }}</td>
-                        <td>{{ transaction.member.unique_identifier }}</td>
-                        <td>{{ transaction.note  }}</td>
-                        <td v-if="transaction.type == 'Debit'">{{ transaction.points }}</td> <td v-else></td>
-                        <td v-if="transaction.type == 'Credit'">{{ transaction.points }}</td> <td v-else></td>
+                        <td>{{ transaction.mukafa_number }}</td>
+                        <td>{{ transaction.order_id  }}</td>
+                        <td v-if="transaction.type == 'Debit'">{{ transaction.mukafa_points }}</td> <td v-else></td>
+                        <td v-if="transaction.type == 'Credit'">{{ transaction.mukafa_points }}</td> <td v-else></td>
                         <td>{{ transaction.status }}</td>
                         <td>{{ transaction.remarks  }}</td>
                       

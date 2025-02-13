@@ -1,10 +1,13 @@
 <script setup>
 import { ref, onMounted,watch } from "vue";
 import login_code from '@/composables/auth.js';
-const { alltransactions,cancel_transaction } = login_code();
+const { alltransactions,cancel_transaction,sendotp } = login_code();
 import { useAuthStore } from '@/store/authStore';
-
+const mukafa_no = ref("");
+import { v4 as uuidv4 } from 'uuid';
 const authStore = useAuthStore();
+
+const init_cancel =ref(false);
 
 const transactions = ref([]); // Store transaction data
 const pagination = ref({
@@ -58,6 +61,7 @@ const fetchTransactions = async (pageurl = null) => {
     page: pagination.value.current_page,
     per_page: recordsPerPage.value,
     status: filterStatus.value,
+    mukafa_no: mukafa_no.value,
     id: search_id.value,
     note:search_orderid.value,
     from_date:from_date.value,
@@ -83,12 +87,12 @@ const fetchTransactions = async (pageurl = null) => {
 
 
 
-
+/*
 const formatDate = (dateString) => {
   const options = { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" };
   return new Date(dateString).toLocaleDateString(undefined, options);
 };
-
+*/
 const transcation_cancel=async(id)=>{
 
 
@@ -137,7 +141,13 @@ else{
 }
 
 
-const cancel=async(id)=>{
+const cancel=async(id,mukafa_number=null)=>{
+
+  let otp_message_id=uuidv4();
+    document.getElementById('otp_message_id').value=otp_message_id;
+   
+        await sendotp(otp_message_id,mukafa_number,'cancel_tran');
+
 
   cancelledTransactionIds.value[id] = `Transaction ${id} `;
   
@@ -171,6 +181,7 @@ const revert= (id)=>{
 
 
 <template>
+  <input type="hidden" value="" id="otp_message_id">
   <div class="template_structure mt-4">
    
     <h5 class="mb-4">Cancellation / Return</h5>
@@ -189,9 +200,11 @@ const revert= (id)=>{
       <thead class="table-light align-middle">
     <!-- Filter and Pagination Row -->
     <tr>
-      <th colspan="8">
+      <th colspan="9">
         <div style="display: inline-block; width: 100%; float: right;">
       <label>Filter</label>    <input type="text"  v-model="search_id" placeholder="By Transaction ID" @blur="fetchTransactions();">
+        
+      <input type="text"  v-model="mukafa_no" placeholder="By Mukafa No" @blur="fetchTransactions();">
         
           <input type="text"  v-model="search_orderid" placeholder="By Order ID" @blur="fetchTransactions();">
         
@@ -210,10 +223,10 @@ const revert= (id)=>{
           </button>
           <button
             class="btn btn-light me-1"
-            :class="{ active: filterStatus === 'success' }"
-            @click="filterTransactions('success')"
+            :class="{ active: filterStatus === 'completed' }"
+            @click="filterTransactions('completed')"
           >
-            Success
+            Completed
           </button>
           <button
             class="btn btn-light me-1"
@@ -238,7 +251,7 @@ const revert= (id)=>{
           </button>
         </div>
       </th>
-      <th colspan="5" class="text-end">
+      <th colspan="6" class="text-end">
         <div class="d-flex justify-content-end align-items-center">
           <button
             class="btn btn-light me-1"
@@ -272,9 +285,10 @@ const revert= (id)=>{
     </tr>
     <!-- Table Headers Row -->
     <tr>
+      <th>S.no</th>
       <th>Transaction ID</th>
       <th>Order Id</th>
-      <th>Member Email</th>
+      <th>Mukafa No.</th>
       <th>Date</th>
       <th>Type</th>
       <th>Purchase Amount</th>
@@ -287,35 +301,58 @@ const revert= (id)=>{
       <tbody>
         <template v-for="(transaction, index) in transactions" :key="transaction.id">
                     <tr>
-                        <td>{{ transaction.id }}</td>
-                        <td>{{ transaction.note || 'N/A' }}</td>
-                        <td>{{ transaction.member.email }}</td>
-                        <td>{{ formatDate(transaction.created_at) }}</td>
-                        <td>{{ transaction.type }}</td>
-                        <td>{{ transaction.purchase_amount  }}</td>
-                        <td>{{ transaction.points }}</td>
+                      <td>{{ (index + 1)}}</td>
+                        <td style="text-align: left;">{{ transaction.id }}</td>
+                        <td style="text-align: left;">{{ transaction.order_id || 'N/A' }}</td>
+                        <td style="text-align: left;">{{ transaction.mukafa_number }}</td>
+                        <td>{{ transaction.created_date }}</td>
+                        <td style="text-align: left;">{{ transaction.type }}</td>
+                        <td style="text-align: right;">{{ transaction.purchase_amount  }}</td>
+                        <td style="text-align: right;">{{ transaction.mukafa_points }}</td>
                         <td v-if="transaction.status=='pending'">
-                            <button @click="cancel(transaction.id,index)" class="btn btn-danger">Cancel / Refund</button>
+                            <button @click="cancel(transaction.id,index,transaction.mukafa_number)" class="btn btn-danger">Cancel / Refund</button>
                         </td>
                         <td v-if="transaction.status!='pending'"> {{transaction.status }}</td>
                     </tr>
                     <tr v-if="cancelledTransactionIds[transaction.id]">
-                      <td colspan="8">
-    <div class="card p-4">
+                      <td colspan="9"  v-if="!init_cancel">
+                        <div class="card p-4">
         <!-- Everything in a flex row -->
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <p class="mb-0 me-3">Are you sure you want to cancel transaction #{{ transaction.id }}?</p>
+          <p class="mb-0 me-3">Are you sure you want to cancel transaction <b> #{{ transaction.id }} </b></p>
 
             <!-- OTP input field and Submit button aligned on the same line -->
             <div class="d-flex align-items-center me-3">
-                <label for="otp" class="form-label mb-0 me-2">Enter OTP:</label>
-                <input type="text" class="form-control" id="otp" placeholder="Enter OTP" style="width: 250px;">
+              
+                <label for="otp" class="form-label mb-0 me-2">Enter OTP</label>
+                <input type="text" class="form-control" id="otp" placeholder="Enter OTP" style="width: 100px !important;">
+                <button @click="verify_otp()" class="btn btn-success ms-2">Verify Otp</button>
+              </div>
+            
+            </div>
+            </div>
+                      </td>
+                      <td colspan="9"  v-if="init_cancel">
+    <div class="card p-4">
+        <!-- Everything in a flex row -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <p class="mb-0 me-3">transaction #{{ transaction.id }}?</p>
+
+           
+
+            <div class="d-flex align-items-center me-3">
+                <label for="otp" class="form-label mb-0 me-2">Cancel Full/Partially</label>
+                <select class="form-control" id="cancel_type" style="width: 150px !important;">
+                  <option value="F">Full</option>
+                  <option value="P">Partially</option>
+
+                </select>
             </div>
 
             <div class="d-flex align-items-center me-3">
                 <label for="Remarks" class="form-label mb-0 me-2">Remarks:</label>
                 <input type="textarea"    class="form-control" id="remarks" placeholder="Enter Remarks" 
-                style="width: 250px;height: 100px;">
+                style="width: 250px !important;height: 100px;">
             </div>
 
             <!-- Submit and Close buttons -->
@@ -331,7 +368,8 @@ const revert= (id)=>{
 
 
 <tr v-if="showcancelled[transaction.id]">
-                      <td colspan="8">
+
+                      <td colspan="9">
     <div class="card p-4">
         <!-- Everything in a flex row -->
         <div class="d-flex justify-content-between align-items-center mb-3">

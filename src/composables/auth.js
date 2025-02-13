@@ -175,10 +175,10 @@ export default function login_code(){
       }
     };
 
-    const sendotp = async (get_otp) => {
-      console.log(get_otp);
+    const verify_otp_backend= async (message_id,mukafa_no,request_type,otp) => {
+
       try {
-        let url = `https://dev-mukafa.js.qa/api/en-us/v1/partner/otp/${get_otp}`;
+        let url = `https://dev-mukafa.js.qa/api/en-us/v1/partner/verify_otp/${message_id}/${mukafa_no}/${request_type}/${otp}`;
         let res = await axios.get(url, {
           headers: {
             Authorization: `Bearer ${authStore.token}`
@@ -186,6 +186,29 @@ export default function login_code(){
         });
     
         if (res.status === 200) {
+         // console.log(res);
+          return res.data.message;
+        } else {
+          throw new Error('Failed to find member');
+        }
+      } catch (error) {
+        throw new Error(error?.response?.data?.message || error.message || 'Network error');
+      }
+    
+    };
+
+    const sendotp = async (message_id,mukafa_no,request_type) => {
+    
+      try {
+        let url = `https://dev-mukafa.js.qa/api/en-us/v1/partner/otp/${message_id}/${mukafa_no}/${request_type}`;
+        let res = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${authStore.token}`
+          }
+        });
+    
+        if (res.status === 200) {
+         // console.log(res);
           return res.data;
         } else {
           throw new Error('Failed to find member');
@@ -380,6 +403,7 @@ if(getstaffid!="Error"){
 
         if (res.status === 200) {
          
+          console.log(res);
           return res;
         } else {
           throw new Error('Failed to find member');
@@ -490,6 +514,7 @@ if(getstaffid!="Error"){
 
         register_member,
         all_members,
-        sendotp
+        sendotp,
+        verify_otp_backend
       };
 }

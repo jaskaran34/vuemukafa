@@ -1,7 +1,8 @@
 <script setup>
 import { ref } from 'vue';
 import login_code from '@/composables/auth.js';
-const { findmember,addtransaction,member_tran_history,sendotp } = login_code();
+const { findmember,addtransaction,member_tran_history,sendotp,verify_otp_backend } = login_code();
+import { v4 as uuidv4 } from 'uuid';
 
 
 
@@ -60,9 +61,10 @@ errors.value.points='';
 
     transactions.value=false;
 
-    let send_otp=Math.floor(100000 + Math.random() * 900000);
-    document.getElementById('otp_val').value=send_otp;
-    await sendotp(send_otp);
+    let otp_message_id=uuidv4();
+    document.getElementById('otp_message_id').value=otp_message_id;
+   
+        await sendotp(otp_message_id,member_account.value.member_unique_identifier,'issue');
     
     otp.value = true;
 
@@ -83,7 +85,16 @@ errors.value.order_no='';
 errors.value.order_amt='';
 errors.value.points='';
  
-    if(document.getElementById('otp').value==document.getElementById('otp_val').value){
+
+try{
+let otp_conf=await verify_otp_backend(document.getElementById('otp_message_id').value,
+                          member_account.value.member_unique_identifier,
+                          'issue',
+                          document.getElementById('otp').value);
+
+                        
+
+    if(otp_conf=='ok'){
     
       otp.value = false;
      ini.value=false;
@@ -96,6 +107,10 @@ errors.value.points='';
       errors.value.otp='Invalid Otp';
     }
 
+  }
+  catch(error){
+    errors.value.otp='Invalid Otp';
+  }
     
     
 };
@@ -176,7 +191,7 @@ const order_number=document.getElementById('order_no').value;
 
 <template>
   
-  <input type="hidden" value="" id="otp_val">
+  <input type="hidden" value="" id="otp_message_id">
   <div v-if="ini" class="profile-container mt-3">
     
 
@@ -196,6 +211,13 @@ const order_number=document.getElementById('order_no').value;
       <button type="submit" id="enterbtn" class="btn btn-primary">Enter</button>
       
     </form>
+  </div>
+
+  <div v-if="recent_partner" class="profile-container mt-3">
+    
+
+    
+    
   </div>
 
   <div v-if="otp" class="profile-container mt-2">
@@ -239,7 +261,7 @@ const order_number=document.getElementById('order_no').value;
         <tr class="bg-light text-dark">
             <th>Name</th>
             <th>Email</th>
-            <th>Unique Identifier</th>
+            <th>Mukafa No.</th>
             <th>Phone</th>
             <th>Card</th>
             <th>Balance</th>
