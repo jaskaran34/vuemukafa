@@ -53,6 +53,11 @@
             <ul class="list-unstyled ps-3">
               <li>
                 <router-link class="nav-link" 
+               :to="{ name: 'verify_mobile' }">Find User</router-link>
+              </li>
+             
+              <li>
+                <router-link class="nav-link" 
                  :to="{ name: 'report_transactions' }">Transactions</router-link>
               </li>
               <li>
@@ -88,7 +93,6 @@
                 <router-link class="nav-link" 
                  :to="{ name: 'settings_addstaff' }">Add Staff</router-link>
               </li>
-              
               <li>
                 <router-link class="nav-link" 
                :to="{ name: 'settings_bankaccounts' }">Bank Accounts</router-link>

@@ -1,13 +1,21 @@
 <script setup>
 import { ref, onMounted,watch } from "vue";
 import login_code from '@/composables/auth.js';
-const { alltransactions,cancel_transaction,sendotp } = login_code();
+const { alltransactions,cancel_transaction,sendotp,verify_otp_backend} = login_code();
 import { useAuthStore } from '@/store/authStore';
 const mukafa_no = ref("");
 import { v4 as uuidv4 } from 'uuid';
 const authStore = useAuthStore();
 
+import { useRoute, useRouter } from 'vue-router';
+
+const route = useRoute();
+const router = useRouter();
+
+const btn_disabled=ref('');
 const init_cancel =ref(false);
+const partial_cancel =ref(false);
+
 
 const transactions = ref([]); // Store transaction data
 const pagination = ref({
@@ -97,24 +105,53 @@ const transcation_cancel=async(id)=>{
 
 
   try{
-    if(document.getElementById('otp').value=='1234'){
-     let remarks= document.getElementById('remarks').value;
-    let res=await cancel_transaction(id,remarks);
+    let cancel_type= document.getElementById('cancel_type').value;
+
     
- let targetId=res.id;
- //console.log(targetId);
-  cancel_points.value=res.points;
+   let partial_amount;
+
+   if(cancel_type=='F'){
+     partial_amount=null;
+   }
+   else{
+     partial_amount = document.getElementById('partial_amount').value;
+   }
+
+   
+
+     let remarks= document.getElementById('remarks').value;
+
+     let data ={
+        "remarks": remarks,
+        "cancel_type": cancel_type,
+        "amount": partial_amount
+    };
 
 
-
+    let res=await cancel_transaction(id,data);
+ 
+       
+ let targetId=res.refrence_tran_id;
+ const foundTransaction = transactions.value.find(item => item.id == targetId);
+ if(cancel_type=='F'){
+  foundTransaction.status='completed';
+   }
+   else if(cancel_type=='P'){
+  foundTransaction.status='Partially Cancelled';
+   }
 
   cancel_tran_id.value=res.cancel_tran_id;
-  cancel_remarks.value=res.remarks;
+  cancel_remarks.value=res.reason_for_cancel;
  balance_after_cancel.value=res.balance;
+ cancel_points.value=res.points_returned;
 
-const foundTransaction = transactions.value.find(item => item.id == targetId);
-console.log(foundTransaction);
-foundTransaction.deleted_at=res.deleted_at;
+
+
+
+
+
+ 
+
 revert(id); 
 
 showcancelled.value[id] = `Transaction ${id} `;
@@ -126,12 +163,12 @@ setTimeout(() => {
   delete showcancelled.value[id];
   cancel_points.value='';
   balance_after_cancel.value='';
+
+   reloadRoute();
 }, 5000); 
 
-    }
-else{
-  alert('Invalid Otp');
-}
+    
+
   }
   catch(e)
   {
@@ -140,13 +177,27 @@ else{
 
 }
 
+const reloadRoute = async() => {
+   const currentRoute = { name: route.name, query: route.query, params: route.params, };
+    router.push({ name: 'reload', query: { targetRoute: JSON.stringify(currentRoute) } }); 
+  };
 
-const cancel=async(id,mukafa_number=null)=>{
+const cancel=async(id,index)=>{
+
+  cancelledTransactionIds.value={};
+
+  if(btn_disabled.value){
+    document.getElementById(btn_disabled.value).disabled = false;
+  }
+  var btn_id='cancel_refund_btn_'+index;
+  document.getElementById(btn_id).disabled = true; 
+
+  btn_disabled.value=btn_id;
 
   let otp_message_id=uuidv4();
     document.getElementById('otp_message_id').value=otp_message_id;
    
-        await sendotp(otp_message_id,mukafa_number,'cancel_tran');
+        await sendotp(otp_message_id,id,'cancel_tran');
 
 
   cancelledTransactionIds.value[id] = `Transaction ${id} `;
@@ -154,6 +205,26 @@ const cancel=async(id,mukafa_number=null)=>{
   //transcation_cancel(id);
 }
 
+const verify_otp =async(id) =>{
+
+
+  try{
+let otp_conf=await verify_otp_backend(document.getElementById('otp_message_id').value,
+                          id,
+                          'cancel_tran',
+                          document.getElementById('otp').value);
+
+                        
+
+    if(otp_conf=='ok'){
+      init_cancel.value=true;
+  }
+}
+  catch(error){
+    alert('Invalid Otp');
+  }
+
+}
 // Fetch initial data on component mount
 onMounted(() => {
   if (authStore.token) {
@@ -167,7 +238,16 @@ const filterTransactions = (status) => {
   fetchTransactions();
 };
 
-const revert= (id)=>{
+const show_hide_partial= ()=>{ 
+  
+  if(document.getElementById('cancel_type').value=='F'){
+    partial_cancel.value=false;
+  }
+  else{
+    partial_cancel.value=true;
+  }
+}
+  const revert= (id)=>{
 
 
   delete cancelledTransactionIds.value[id];
@@ -200,7 +280,7 @@ const revert= (id)=>{
       <thead class="table-light align-middle">
     <!-- Filter and Pagination Row -->
     <tr>
-      <th colspan="9">
+      <th colspan="10">
         <div style="display: inline-block; width: 100%; float: right;">
       <label>Filter</label>    <input type="text"  v-model="search_id" placeholder="By Transaction ID" @blur="fetchTransactions();">
         
@@ -212,7 +292,7 @@ const revert= (id)=>{
          By Order Date<input type="date" v-model="from_date"  @change="fetchTransactions()" ><input type="date" v-model="to_date"  @change="fetchTransactions()"> </div></th>
       </tr>
     <tr>
-      <th colspan="3">
+      <th colspan="5">
         <div class="d-flex align-items-center">
           <button
             class="btn btn-light me-1"
@@ -251,7 +331,7 @@ const revert= (id)=>{
           </button>
         </div>
       </th>
-      <th colspan="6" class="text-end">
+      <th colspan="5" class="text-end">
         <div class="d-flex justify-content-end align-items-center">
           <button
             class="btn btn-light me-1"
@@ -296,6 +376,7 @@ const revert= (id)=>{
       
       
       <th>Status</th>
+      <th>Remarks</th>
     </tr>
   </thead>
       <tbody>
@@ -309,11 +390,16 @@ const revert= (id)=>{
                         <td style="text-align: left;">{{ transaction.type }}</td>
                         <td style="text-align: right;">{{ transaction.purchase_amount  }}</td>
                         <td style="text-align: right;">{{ transaction.mukafa_points }}</td>
-                        <td v-if="transaction.status=='pending'">
-                            <button @click="cancel(transaction.id,index,transaction.mukafa_number)" class="btn btn-danger">Cancel / Refund</button>
+                        <td v-if="transaction.status=='pending' && transaction.type=='Credit'">
+                            <button @click="cancel(transaction.id,index)" class="btn btn-danger" :id="'cancel_refund_btn_' + index">Cancel / Refund</button>
                         </td>
-                        <td v-if="transaction.status!='pending'"> {{transaction.status }}</td>
-                    </tr>
+                        <td v-else> {{transaction.status }}</td>
+                        <td v-if="transaction.cancel_flag=='C' && transaction.status=='pending'" class="text-warning"><b>Partially Cancelled {{transaction.remarks}}</b></td>
+                        <td v-else-if="transaction.cancel_flag=='R'" class="text-info"><b>Refund</b> </td>
+                        <td v-else-if="transaction.cancel_flag=='C' && transaction.status=='completed'" class="text-danger"><b>{{transaction.remarks}}</b></td>
+                        <td v-else-if="transaction.cancel_flag!='C'  && transaction.cancel_flag!='R'" class="text-success"><b>{{transaction.remarks}}</b></td>
+                    
+                      </tr>
                     <tr v-if="cancelledTransactionIds[transaction.id]">
                       <td colspan="9"  v-if="!init_cancel">
                         <div class="card p-4">
@@ -325,8 +411,8 @@ const revert= (id)=>{
             <div class="d-flex align-items-center me-3">
               
                 <label for="otp" class="form-label mb-0 me-2">Enter OTP</label>
-                <input type="text" class="form-control" id="otp" placeholder="Enter OTP" style="width: 100px !important;">
-                <button @click="verify_otp()" class="btn btn-success ms-2">Verify Otp</button>
+                <input type="text" class="form-control" value="123456" id="otp" placeholder="Enter OTP" style="width: 100px !important;">
+                <button @click="verify_otp(transaction.id)" class="btn btn-success ms-2">Verify Otp</button>
               </div>
             
             </div>
@@ -341,13 +427,20 @@ const revert= (id)=>{
            
 
             <div class="d-flex align-items-center me-3">
-                <label for="otp" class="form-label mb-0 me-2">Cancel Full/Partially</label>
-                <select class="form-control" id="cancel_type" style="width: 150px !important;">
-                  <option value="F">Full</option>
-                  <option value="P">Partially</option>
+                <label for="otp" class="form-label mb-0 me-2">Cancellation Type</label>
+                <select class="form-control" id="cancel_type" @change="show_hide_partial()" style="width: 150px !important;">
+                  <option value="F">Full Transaction</option>
+                  <option value="P">Partial</option>
 
                 </select>
             </div>
+
+            <div class="d-flex align-items-center me-3" v-if="partial_cancel">
+                <label for="otp" class="form-label mb-0 me-2">Enter Amount</label>
+                <input type="text" value="" id="partial_amount">
+            </div>
+
+            
 
             <div class="d-flex align-items-center me-3">
                 <label for="Remarks" class="form-label mb-0 me-2">Remarks:</label>
@@ -373,7 +466,7 @@ const revert= (id)=>{
     <div class="card p-4">
         <!-- Everything in a flex row -->
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <table class="table table-bordered" style="max-width: 500px; margin: auto;">
+          <table class="table table-bordered" style="max-width: 700px; margin: auto;">
             <thead>
               <tr><th colspan="5" style="text-align: center;">Transaction Cancelled</th></tr>
             

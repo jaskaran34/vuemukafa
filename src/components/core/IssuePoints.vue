@@ -212,14 +212,14 @@ const order_number=document.getElementById('order_no').value;
       
     </form>
   </div>
-
+<!--
   <div v-if="recent_partner" class="profile-container mt-3">
     
 
-    
-    
-  </div>
+    <h1>hfd</h1>
 
+  </div>
+-->
   <div v-if="otp" class="profile-container mt-2">
     <form @submit.prevent="verify_otp">
       <div class="form-row mb-3">

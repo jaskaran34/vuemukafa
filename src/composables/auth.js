@@ -184,7 +184,7 @@ export default function login_code(){
             Authorization: `Bearer ${authStore.token}`
           }
         });
-    
+        
         if (res.status === 200) {
          // console.log(res);
           return res.data.message;
@@ -208,7 +208,7 @@ export default function login_code(){
         });
     
         if (res.status === 200) {
-         // console.log(res);
+          //console.log(res);
           return res.data;
         } else {
           throw new Error('Failed to find member');
@@ -362,29 +362,33 @@ if(getstaffid!="Error"){
         
     }
 
-    const cancel_transaction = async (id,remarks) => {
+    const cancel_transaction = async (id, data) => {
       try {
         const url = `${authStore.baseURL}/partner/transactions/${id}`;
-        console.log(url);
+        
         const res = await axios.delete(url, {
-          data: {
-            remarks: remarks, 
-          },
+          data: data,
           headers: {
             Authorization: `Bearer ${authStore.token}`,
           },
         });
-
-        console.log(res);
     
         if (res.status === 200) {
-        return res.data;
+          return res.data; // Successful response
+        } else {
+          throw new Error('Unexpected status: ' + res.status);
         }
-        
       } catch (error) {
-        console.error('Error cancelling transaction:', error.response?.data || error.message);
+        if (error.response) {
+          // Throw the error message from the backend or fallback to a default message
+          throw new Error(error.response.data?.Error || 'Request failed with status ' + error.response.status);
+        } else {
+          // Throw the general error message if no response exists (e.g., network error)
+          throw new Error(error.message || 'Network error');
+        }
       }
     };
+    
     
     const alltransactions= async (pageurl = null,params) =>{
       try {
@@ -403,7 +407,7 @@ if(getstaffid!="Error"){
 
         if (res.status === 200) {
          
-          console.log(res);
+          //console.log(res);
           return res;
         } else {
           throw new Error('Failed to find member');
@@ -456,6 +460,21 @@ if(getstaffid!="Error"){
 
 
     }
+    const search_member= async (val) => {
+
+      let url =`https://dev-mukafa.js.qa/api/en-us/v1/partner/findmember/${val}`;
+
+      let res = await axios.get(url,{
+          headers: {
+            Authorization: `Bearer ${authStore.token}`
+          }
+        });
+
+       return res.data
+
+        
+
+    }
 
     const login = async (email,password,login_type) => {
 
@@ -505,7 +524,7 @@ if(getstaffid!="Error"){
         findmember,
         addtransaction,
         redeempoints,
-        
+        search_member,
         member_tran_history,
         
         
