@@ -178,15 +178,16 @@ export default function login_code(){
     const verify_otp_backend= async (message_id,mukafa_no,request_type,otp) => {
 
       try {
-        let url = `https://dev-mukafa.js.qa/api/en-us/v1/partner/verify_otp/${message_id}/${mukafa_no}/${request_type}/${otp}`;
+        let url = `${authStore.baseURL}/partner/verify_otp/${message_id}/${mukafa_no}/${request_type}/${otp}`;
+      
         let res = await axios.get(url, {
           headers: {
             Authorization: `Bearer ${authStore.token}`
           }
         });
-        
+       console.log(res.data);
         if (res.status === 200) {
-         // console.log(res);
+         
           return res.data.message;
         } else {
           throw new Error('Failed to find member');
@@ -200,7 +201,7 @@ export default function login_code(){
     const sendotp = async (message_id,mukafa_no,request_type) => {
     
       try {
-        let url = `https://dev-mukafa.js.qa/api/en-us/v1/partner/otp/${message_id}/${mukafa_no}/${request_type}`;
+        let url = `${authStore.baseURL}/partner/otp/${message_id}/${mukafa_no}/${request_type}`;
         let res = await axios.get(url, {
           headers: {
             Authorization: `Bearer ${authStore.token}`
@@ -208,7 +209,7 @@ export default function login_code(){
         });
     
         if (res.status === 200) {
-          //console.log(res);
+          console.log(res);
           return res.data;
         } else {
           throw new Error('Failed to find member');
@@ -460,15 +461,18 @@ if(getstaffid!="Error"){
 
 
     }
-    const search_member= async (val) => {
+    const search_member= async (phone,phone_prefix) => {
 
-      let url =`https://dev-mukafa.js.qa/api/en-us/v1/partner/findmember/${val}`;
+      let url =`${authStore.baseURL}/partner/findmember/${phone}/${phone_prefix}`;
 
+      
       let res = await axios.get(url,{
           headers: {
             Authorization: `Bearer ${authStore.token}`
           }
         });
+
+        
 
        return res.data
 

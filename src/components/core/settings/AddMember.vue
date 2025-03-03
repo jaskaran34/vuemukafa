@@ -1,7 +1,8 @@
 <script setup>
 import { ref,onMounted, computed } from 'vue';
 import login_code from '@/composables/auth.js';
-const { register_member,all_members } = login_code();
+const { register_member,all_members,sendotp,verify_otp_backend } = login_code();
+import { v4 as uuidv4 } from 'uuid';
 
 import { useRoute, useRouter } from 'vue-router';
 
@@ -12,6 +13,8 @@ import { useAuthStore } from '@/store/authStore';
 const authStore = useAuthStore();
 
 const memberData = ref([]);
+const otp = ref(false);
+
 
 onMounted(async()=>{
 
@@ -27,6 +30,8 @@ onMounted(async()=>{
    
     
 });
+
+
 
 const reloadRoute = async() => {
    const currentRoute = { name: route.name, query: route.query, params: route.params, };
@@ -54,10 +59,45 @@ const errors=ref({
     password:'',
     phone:'',
     points:'',
-    dob:''
+    dob:'',
+    otp:''
 });
 
+const verify_otp = async () => {
 
+  errors.value.name='';
+    errors.value.email='';
+    errors.value.phone='';
+    errors.value.dob='';
+    errors.value.password='';
+    errors.value.otp='';
+    
+
+try{
+let otp_conf=await verify_otp_backend(document.getElementById('otp_message_id').value,
+                        null,
+                        'register_customer',
+                        document.getElementById('otp_val').value);
+
+                      
+
+  if(otp_conf=='ok'){
+  
+    await  register_member(form.value);
+      // console.log(res);
+        await reloadRoute();
+  }
+  else{
+    errors.value.otp='Invalid Otp';
+  }
+
+}
+catch(error){
+  errors.value.otp='Invalid Otp';
+}
+  
+  
+};
 
 
 const addmember = async () => {
@@ -68,6 +108,8 @@ const addmember = async () => {
     errors.value.phone='';
     errors.value.dob='';
     errors.value.password='';
+    errors.value.otp='';
+    otp.value=false;
     isSubmitted.value=true;
 
     const nameRegex = /^[a-zA-Z\s]+$/;
@@ -120,22 +162,20 @@ const addmember = async () => {
     return;
   }    
 
-  try{        
-    await  register_member(form.value);
-      // console.log(res);
-        await reloadRoute();
+  let otp_message_id=uuidv4();
+    document.getElementById('otp_message_id').value=otp_message_id;
+   
+        await sendotp(otp_message_id,form.value.member_countryCode+'-'+form.value.member_phone,'register_customer');
+    
+    otp.value = true;
 
-  }
-
-  catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    //console.error('Error:', errorMessage);
-    errors.value.points = errorMessage;  
-  }
+  otp.value=true;
+  
 };
 </script>
 
 <template>
+   <input type="hidden" value="" id="otp_message_id">
   <div class="template_structure" >
     <h5 class="mb-4">Add Member</h5>
     <form @submit.prevent="addmember">
@@ -232,6 +272,20 @@ const addmember = async () => {
 
       <button type="submit" class="btn btn-primary">Add</button>
     </form>
+    <div v-if="otp">
+      <div class="mb-3">
+        <label for="memberbirthday" class="form-label">Enter Otp (Sent to {{ form.member_countryCode + form.member_phone }})</label>
+        <input
+          type="text"
+          id="otp_val"
+          class="form-control"
+        />
+
+        <button type="button" class="btn btn-success mt-1" @click="verify_otp">Submit</button>
+        <span v-if="isSubmitted && errors.otp" class="text-danger">{{ errors.otp }}</span>
+      </div>
+      
+    </div>
     <span v-if="errors.points" class="text-danger">{{ errors.points }}</span>
      <h5 class="mb-2 mt-4">Members List</h5>
     <table class="table table-striped table-bordered" >
