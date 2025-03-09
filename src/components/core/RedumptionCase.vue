@@ -301,7 +301,7 @@ const order_number=document.getElementById('order_no').value;
       </div>
 
       <div class="form-row mb-3">
-        <label for="profilename" class="col-sm-2 col-form-label">Mukafa points:</label>
+        <label for="profilename" class="col-sm-2 col-form-label">Amount:</label>
         <div class="col-sm-10">
           <input
             type="text"

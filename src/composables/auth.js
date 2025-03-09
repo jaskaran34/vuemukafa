@@ -393,12 +393,13 @@ if(getstaffid!="Error"){
     
     const alltransactions= async (pageurl = null,params) =>{
       try {
+        console.log(params.toString());
         let baseUrl =`${authStore.baseURL}/partner/transactions`;
         if(pageurl){
           //console.log(url);console.log(params);
         }
         const url = pageurl ||`${baseUrl}?${params.toString()}`;
-        //console.log(url);
+        console.log(url);
         let res = await axios.get(url, {
           headers: {
             Authorization: `Bearer ${authStore.token}`

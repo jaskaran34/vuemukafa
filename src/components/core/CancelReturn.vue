@@ -27,7 +27,10 @@ const pagination = ref({
 const recordsPerPage = ref(10); // Default records per page
 const filterStatus = ref(""); // Default filter status
 const reset_page_setting=ref(true);
+
 const search_id = ref("");
+let timeout = null;
+
 const search_orderid = ref("");
 
 const from_date = ref("");
@@ -58,6 +61,13 @@ watch(
   }
 );
 
+watch([search_id, mukafa_no, search_orderid], () => {
+  clearTimeout(timeout);
+  timeout = setTimeout(() => {
+    fetchTransactions();
+  }, 1000); // 1 second delay after inactivity
+});
+
 const fetchTransactions = async (pageurl = null) => {
   
  
@@ -70,8 +80,8 @@ const fetchTransactions = async (pageurl = null) => {
     per_page: recordsPerPage.value,
     status: filterStatus.value,
     mukafa_no: mukafa_no.value,
-    id: search_id.value,
-    note:search_orderid.value,
+    transaction_id: search_id.value,
+    order_id:search_orderid.value,
     from_date:from_date.value,
     to_date:to_date.value
   });
@@ -174,6 +184,17 @@ setTimeout(() => {
   {
     alert(e);
   }
+
+}
+const reset_params = () => {
+  search_id.value='';
+  mukafa_no.value='';
+  search_orderid.value='';
+  from_date.value='';
+  to_date.value='';
+  filterStatus.value='';
+
+  fetchTransactions();
 
 }
 
@@ -282,15 +303,21 @@ const show_hide_partial= ()=>{
     <tr>
       <th colspan="10">
         <div style="display: inline-block; width: 100%; float: right;">
-      <label>Filter</label>    <input type="text"  v-model="search_id" placeholder="By Transaction ID" @blur="fetchTransactions();">
+      <label style="float: left;font-size: large;">Filter Results:</label>  
+        <input style="float: left;margin-left: 5px;" type="text"  v-model="search_id" placeholder="By Transaction ID" >
+      <input style="float: left;" type="text"  v-model="search_orderid" placeholder="By Order ID" >
+      <input  style="float: left;" type="text"  v-model="mukafa_no" placeholder="By Mukafa No" >
         
-      <input type="text"  v-model="mukafa_no" placeholder="By Mukafa No" @blur="fetchTransactions();">
-        
-          <input type="text"  v-model="search_orderid" placeholder="By Order ID" @blur="fetchTransactions();">
+          
         
       
-         By Order Date<input type="date" v-model="from_date"  @change="fetchTransactions()" ><input type="date" v-model="to_date"  @change="fetchTransactions()"> </div></th>
-      </tr>
+         By Order Date<input type="date" v-model="from_date"  @change="fetchTransactions()" ><input type="date" v-model="to_date"  @change="fetchTransactions()">
+         <button class="btn btn-warning text-white" @click="reset_params()" style="height: 36px;
+    width: 100px;
+    float: right;">Reset</button>
+        </div></th>
+      
+        </tr>
     <tr>
       <th colspan="5">
         <div class="d-flex align-items-center">
