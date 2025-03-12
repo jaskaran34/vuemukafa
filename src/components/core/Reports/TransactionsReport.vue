@@ -5,7 +5,7 @@ const { alltransactions } = login_code();
 import { useAuthStore } from '@/store/authStore';
 
 const authStore = useAuthStore();
-
+let timeout = null;
 const transactions = ref([]); // Store transaction data
 const pagination = ref({
   current_page: 1,
@@ -37,23 +37,45 @@ watch(
   }
 );
 
+watch([search_id, mukafa_no, search_orderid], () => {
+  //alert(search_id);
+clearTimeout(timeout);
+  timeout = setTimeout(() => {
+    fetchTransactions();
+  }, 1000); // 1 second delay after inactivity
+});
+
+const reset_params = () => {
+  search_id.value='';
+  mukafa_no.value='';
+  search_orderid.value='';
+  from_date.value='';
+  to_date.value='';
+
+  fetchTransactions();
+
+}
+
 const fetchTransactions = async (pageurl = null) => {
   
- 
+
   if(reset_page_setting.value){
     pagination.value.current_page=1;
    // alert('changed');
   }
+
   const params = new URLSearchParams({
     page: pagination.value.current_page,
     per_page: recordsPerPage.value,
     status: filterStatus.value,
-    transaction_id: search_id.value,
     mukafa_no: mukafa_no.value,
+    transaction_id: search_id.value,
     order_id:search_orderid.value,
     from_date:from_date.value,
     to_date:to_date.value
   });
+
+
       
   try{
  
@@ -93,7 +115,7 @@ onMounted(() => {
 
 
 
-
+/*
 const printTable = (tableId) => {
   const table = document.getElementById(tableId).cloneNode(true);
   
@@ -108,6 +130,7 @@ const printTable = (tableId) => {
   window.print();
   document.body.innerHTML = originalContents;
 };
+*/
 </script>
 
 
@@ -132,16 +155,19 @@ const printTable = (tableId) => {
     <!-- Filter and Pagination Row -->
     <tr>
       <th colspan="10">
-        <div style="display: inline-block; width: 100%;">
-      <label>Filter</label>    <input type="text"  v-model="search_id" placeholder="By Transaction ID" @blur="fetchTransactions();">
-        
-      <input type="text"  v-model="mukafa_no" placeholder="By Mukafa No." @blur="fetchTransactions();">
-
-          <input type="text"  v-model="search_orderid" placeholder="By Order ID" @blur="fetchTransactions();">
+        <div style="display: inline-block; width: 100%; float: right;">
+      <label style="float: left;font-size: large;">Filter Results:</label>  
+        <input style="float: left;margin-left: 5px;" type="text"  v-model="search_id" placeholder="By Transaction ID" >
+        <input  style="float: left;" type="text"  v-model="mukafa_no" placeholder="By Mukafa No" >
+      
+        <input style="float: left;" type="text"  v-model="search_orderid" placeholder="By Order ID" >
         
       
          By Order Date<input type="date" v-model="from_date"  @change="fetchTransactions()" ><input type="date" v-model="to_date"  @change="fetchTransactions()">
-         <button class="btn btn-success" @click="printTable('table_show')" style="float: right;">Print</button>
+         <button class="btn btn-warning text-white" @click="reset_params()" style="height: 36px;
+    width: 60px;
+    float: right;">Reset</button>
+         <!--<button class="btn btn-success" @click="printTable('table_show')" style="float: right;">Print</button>-->
          </div>
         </th>
        </tr>
@@ -184,7 +210,7 @@ const printTable = (tableId) => {
 
         <th>ID</th>
                <th>Date</th>
-               <th>Reference Id</th>
+               <th>Transaction ID</th>
                <th>Mukafa No </th>
                <th>Order ID</th>
                <th>Debit </th>

@@ -30,7 +30,7 @@
 
         <li class="nav-item">
           <router-link class="nav-link"
-           :to="{ name: 'redumption' }">Redumption</router-link>
+           :to="{ name: 'redumption' }">Redemption</router-link>
         </li>
 
         <li class="nav-item">

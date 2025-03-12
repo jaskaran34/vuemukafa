@@ -421,8 +421,8 @@ const show_hide_partial= ()=>{
                             <button @click="cancel(transaction.id,index)" class="btn btn-danger" :id="'cancel_refund_btn_' + index">Cancel / Refund</button>
                         </td>
                         <td v-else> {{transaction.status }}</td>
-                        <td v-if="transaction.cancel_flag=='C' && transaction.status=='pending'" class="text-warning"><b>Partially Cancelled {{transaction.remarks}}</b></td>
-                        <td v-else-if="transaction.cancel_flag=='R'" class="text-info"><b>Refund</b> </td>
+                        <td v-if="transaction.cancel_flag=='C' && transaction.status=='pending'" class="text-warning"><b>Partially Cancelled-{{transaction.remarks}}</b></td>
+                        <td v-else-if="transaction.cancel_flag=='R'" class="text-info"><b>{{transaction.remarks}}</b> </td>
                         <td v-else-if="transaction.cancel_flag=='C' && transaction.status=='completed'" class="text-danger"><b>{{transaction.remarks}}</b></td>
                         <td v-else-if="transaction.cancel_flag!='C'  && transaction.cancel_flag!='R'" class="text-success"><b>{{transaction.remarks}}</b></td>
                     

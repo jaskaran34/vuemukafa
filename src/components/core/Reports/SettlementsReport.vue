@@ -28,6 +28,9 @@ const search_orderid = ref("");
 const from_date = ref("");
 const to_date = ref("");
 
+const mukafa_no = ref("");
+let timeout = null;
+
 watch(
   filterStatus,
   (newValue, oldValue) => {
@@ -42,6 +45,14 @@ watch(
   }
 );
 
+watch([search_id, mukafa_no, search_orderid], () => {
+  //alert(search_id);
+clearTimeout(timeout);
+  timeout = setTimeout(() => {
+    fetchTransactions();
+  }, 1000); // 1 second delay after inactivity
+});
+
 const fetchTransactions = async (pageurl = null) => {
   
  
@@ -49,12 +60,14 @@ const fetchTransactions = async (pageurl = null) => {
     pagination.value.current_page=1;
    // alert('changed');
   }
+  
+
   const params = new URLSearchParams({
     page: pagination.value.current_page,
     per_page: recordsPerPage.value,
     status: filterStatus.value,
-    id: search_id.value,
-    note:search_orderid.value,
+    ref_tran_id: search_id.value,
+    ref_order_id:search_orderid.value,
     from_date:from_date.value,
     to_date:to_date.value
   });
@@ -63,7 +76,8 @@ const fetchTransactions = async (pageurl = null) => {
     
    const res= await alltransactions(pageurl,params);
     
-  
+   console.log(res.data.data);
+   
     transactions.value = res.data.data;
 
     
@@ -101,6 +115,17 @@ service_total.value = parseFloat(service_total.value).toFixed(2);
     console.error("Error fetching transactions:", error);
   }
 };
+
+const reset_params = () => {
+  search_id.value='';
+  search_orderid.value='';
+  from_date.value='';
+  to_date.value='';
+
+  fetchTransactions();
+
+}
+
 const printTable = (tableId) => {
   const table = document.getElementById(tableId).cloneNode(true); // Clone the table for printing
   const tbody = table.querySelector('tbody'); // Select only the tbody from the cloned table
@@ -252,16 +277,18 @@ onMounted(() => {
     <!-- Filter and Pagination Row -->
     <tr>
       <th colspan="11">
-        <div style="display: inline-block; width: 100%;">
-      <label>Filter</label>    <input type="text"  v-model="search_id" placeholder="By Transaction ID" @blur="fetchTransactions();">
-        
-          <input type="text"  v-model="search_orderid" placeholder="By Order ID" @blur="fetchTransactions();">
-        
+        <div style="display: inline-block; width: 100%; float: right;">
+      <label style="float: left;font-size: large;">Filter Results:</label>  
+        <input style="float: left;margin-left: 5px;" type="text"  v-model="search_id" placeholder="By Reference Tran ID" >
+        <input style="float: left;" type="text"  v-model="search_orderid" placeholder="By Order ID" >
       
          By Order Date<input type="date" v-model="from_date"  @change="fetchTransactions()" ><input type="date" v-model="to_date"  @change="fetchTransactions()">
-         <button class="btn btn-warning text-white" @click="exportToCSV('table_show')" style="float: right;margin-left: 3px;">Export to CSV</button>
+         <button class="btn btn-info text-white" @click="exportToCSV('table_show')" style="float: right;margin-left: 3px;">Export to CSV</button>
          <button class="btn btn-success" @click="printTable('table_show')" style="float: right;">Print</button>
-         </div>
+         <button class="btn btn-warning text-white" @click="reset_params()" style="height: 36px;
+    width: 100px;
+    float: right;">Reset</button>
+        </div>
         </th>
        </tr>
     <tr>
@@ -306,7 +333,7 @@ onMounted(() => {
 
         <th>ID</th>
                
-               <th>Reference Id</th>
+               <th>Transaction Id</th>
                <th>Date</th>
                <th>Issue</th>
                <th>Redeem</th>
