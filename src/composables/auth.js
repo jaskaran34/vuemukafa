@@ -185,7 +185,7 @@ export default function login_code(){
             Authorization: `Bearer ${authStore.token}`
           }
         });
-       console.log(res.data);
+      // console.log(res.data);
         if (res.status === 200) {
          
           return res.data.message;
@@ -209,7 +209,7 @@ export default function login_code(){
         });
     
         if (res.status === 200) {
-          console.log(res);
+       //   console.log(res);
           return res.data;
         } else {
           throw new Error('Failed to find member');
@@ -393,13 +393,13 @@ if(getstaffid!="Error"){
     
     const alltransactions= async (pageurl = null,params) =>{
       try {
-        console.log(params.toString());
+        //console.log(params.toString());
         let baseUrl =`${authStore.baseURL}/partner/transactions`;
         if(pageurl){
           //console.log(url);console.log(params);
         }
         const url = pageurl ||`${baseUrl}?${params.toString()}`;
-        console.log(url);
+       // console.log(url);
         let res = await axios.get(url, {
           headers: {
             Authorization: `Bearer ${authStore.token}`
