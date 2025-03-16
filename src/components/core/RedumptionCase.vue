@@ -253,7 +253,7 @@ const order_number=document.getElementById('order_no').value;
         <tr class="bg-light text-dark">
             <th>Name</th>
             <th>Email</th>
-            <th>Unique Identifier</th>
+            <th>Mukafa No.</th>
             <th>Phone</th>
             <th>Card</th>
             <th>Balance</th>

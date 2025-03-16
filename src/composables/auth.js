@@ -221,17 +221,26 @@ export default function login_code(){
 
     
 
-const all_members= async()=>{
-  let url =`${authStore.baseURL}/partner/member/get/all`;
+const all_members= async(pageurl = null,params)=>{
+
+  if (pageurl && pageurl.includes('http://dev-mukafa.js.qa/api/en-us/v1')) {
+    pageurl = pageurl.replace('http://dev-mukafa.js.qa/api/en-us/v1', authStore.baseURL);
+  }
+  let baseUrl =`${authStore.baseURL}/partner/member/get/all`;
+  const url = pageurl ||`${baseUrl}?${params.toString()}`;
+  //let url =`${authStore.baseURL}/partner/member/get/all`;
+  //console.log(url);
 
   let res = await axios.get(url,{
     headers: {
       Authorization: `Bearer ${authStore.token}`
     }
   });
+  //console.log(res.data);
 
   if(res.status==200){
-    return res.data.data;
+   // console.log(res.data);
+    return res.data;
   }
 
 }
@@ -373,6 +382,8 @@ if(getstaffid!="Error"){
             Authorization: `Bearer ${authStore.token}`,
           },
         });
+
+        //console.log(res);
     
         if (res.status === 200) {
           return res.data; // Successful response
@@ -481,6 +492,25 @@ if(getstaffid!="Error"){
 
     }
 
+    const dashboard_info= async () => {
+
+      let url =`${authStore.baseURL}/partner/dashboard/info`;
+
+      
+      let res = await axios.get(url,{
+          headers: {
+            Authorization: `Bearer ${authStore.token}`
+          }
+        });
+
+        
+
+       return res.data
+
+        
+
+    }
+
     const login = async (email,password,login_type) => {
 
       let url;
@@ -539,6 +569,7 @@ if(getstaffid!="Error"){
         register_member,
         all_members,
         sendotp,
-        verify_otp_backend
+        verify_otp_backend,
+        dashboard_info
       };
 }

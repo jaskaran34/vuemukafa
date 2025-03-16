@@ -205,6 +205,7 @@ const reloadRoute = async() => {
 
 const cancel=async(id,index)=>{
 
+ 
   cancelledTransactionIds.value={};
 
   if(btn_disabled.value){
@@ -223,10 +224,11 @@ const cancel=async(id,index)=>{
 
   cancelledTransactionIds.value[id] = `Transaction ${id} `;
   
+  
   //transcation_cancel(id);
 }
 
-const verify_otp =async(id) =>{
+const verify_otp =async(id,cancel_flag) =>{
 
 
   try{
@@ -239,6 +241,10 @@ let otp_conf=await verify_otp_backend(document.getElementById('otp_message_id').
 
     if(otp_conf=='ok'){
       init_cancel.value=true;
+      if(cancel_flag=='C'){
+  //document.getElementById('cancel_type').value='P';
+  partial_cancel.value=true;
+  }
   }
 }
   catch(error){
@@ -439,7 +445,7 @@ const show_hide_partial= ()=>{
               
                 <label for="otp" class="form-label mb-0 me-2">Enter OTP</label>
                 <input type="text" class="form-control" value="123456" id="otp" placeholder="Enter OTP" style="width: 100px !important;">
-                <button @click="verify_otp(transaction.id)" class="btn btn-success ms-2">Verify Otp</button>
+                <button @click="verify_otp(transaction.id,transaction.cancel_flag)" class="btn btn-success ms-2">Verify Otp</button>
               </div>
             
             </div>
@@ -453,23 +459,23 @@ const show_hide_partial= ()=>{
 
            
 
-            <div class="d-flex align-items-center me-3">
+            <div class="d-flex align-items-center">
                 <label for="otp" class="form-label mb-0 me-2">Cancellation Type</label>
                 <select class="form-control" id="cancel_type" @change="show_hide_partial()" style="width: 150px !important;">
-                  <option value="F">Full Transaction</option>
+                  <option value="F" v-if="transaction.cancel_flag!='C'">Full Transaction</option>
                   <option value="P">Partial</option>
 
                 </select>
             </div>
 
-            <div class="d-flex align-items-center me-3" v-if="partial_cancel">
+            <div class="d-flex align-items-center" v-if="partial_cancel">
                 <label for="otp" class="form-label mb-0 me-2">Enter Amount</label>
                 <input type="text" value="" id="partial_amount">
             </div>
 
             
 
-            <div class="d-flex align-items-center me-3">
+            <div class="d-flex align-items-center">
                 <label for="Remarks" class="form-label mb-0 me-2">Remarks:</label>
                 <input type="textarea"    class="form-control" id="remarks" placeholder="Enter Remarks" 
                 style="width: 250px !important;height: 100px;">

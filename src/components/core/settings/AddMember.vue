@@ -1,5 +1,5 @@
 <script setup>
-import { ref,onMounted, computed } from 'vue';
+import { ref,onMounted, computed,watch } from 'vue';
 import login_code from '@/composables/auth.js';
 const { register_member,all_members,sendotp,verify_otp_backend } = login_code();
 import { v4 as uuidv4 } from 'uuid';
@@ -14,17 +14,69 @@ const authStore = useAuthStore();
 
 const memberData = ref([]);
 const otp = ref(false);
+let timeout = null;
+const reset_page_setting=ref(true);
 
+const pagination = ref({
+  current_page: 1,
+  last_page: 1,
+  prev_page_url: null,
+  next_page_url: null,
+});
+const recordsPerPage = ref(10);
+
+const mobile = ref("");
+const mukafa_no = ref("");
+
+
+watch([mobile, mukafa_no], () => {
+  //alert(search_id);
+clearTimeout(timeout);
+  timeout = setTimeout(() => {
+    fetchTransactions();
+  }, 1000); // 1 second delay after inactivity
+});
+
+const fetchTransactions = async (pageurl = null) => {
+
+  if(reset_page_setting.value){
+    pagination.value.current_page=1;
+   // alert('changed');
+  }
+
+ // console.log(pageurl);
+  const params = new URLSearchParams({
+    page: pagination.value.current_page,
+    mukafa_no:mukafa_no.value,
+    mobile:mobile.value,
+    per_page: recordsPerPage.value,
+  });
+
+
+  let result=await all_members(pageurl,params);
+
+  
+    //
+    memberData.value = result.data; 
+    //console.log(result.value);
+
+    pagination.value = {
+      current_page: result.pagination.current_page,
+      last_page: result.pagination.last_page,
+      prev_page_url: result.pagination.prev_page_url,
+      next_page_url: result.pagination.next_page_url,
+    };
+    
+}
 
 onMounted(async()=>{
 
   if (authStore.token) {
-    let result=await all_members();
-    //
-    memberData.value = result; 
-    console.log(memberData.value);
+    
+    fetchTransactions();
+    
   } else {
-    console.log('22');
+    //console.log('22');
     router.push({name: 'userLogin'});
   }
    
@@ -291,11 +343,53 @@ const addmember = async () => {
     <table class="table table-striped table-bordered" >
       <thead class="table-dark">
         <tr>
+          <th colspan="5">
+          <label style="float: left;font-size: large;">Filter Results:</label>  
+        <input style="float: left;margin-left: 5px;" type="text"  v-model="mobile" placeholder="By Mobile" >
+        <input  style="float: left;" type="text"  v-model="mukafa_no" placeholder="By Mukafa No" >
+
+      </th>
+      
+      <th colspan="6" class="text-end">
+        <div class="d-flex justify-content-end align-items-center">
+          <button
+            class="btn btn-light me-1"
+            :disabled="!pagination.prev_page_url"
+            @click="fetchTransactions(pagination.prev_page_url)"
+          >
+            &lt;
+          </button>
+          <span class="mx-2">Page {{ pagination.current_page }} of {{ pagination.last_page }}</span>
+          <button
+            class="btn btn-light ms-1"
+            :disabled="!pagination.next_page_url"
+            @click="fetchTransactions(pagination.next_page_url)"
+          >
+            &gt;
+          </button>
+          
+          <select
+            class="form-select ms-3"
+            style="width: auto;"
+            v-model="recordsPerPage"
+            @change="fetchTransactions()"
+          >
+            <option value="10">10 Records</option>
+            <option value="25">25 Records</option>
+            <option value="50">50 Records</option>
+          </select>
+          
+        </div>
+      </th>
+    </tr>
+        <tr>
           <th></th>
           <th> Name</th>
-          <th>Email</th>
+          
           <th>Mobile</th>
           <th>Mukafa No.</th>
+          <th>Email</th>
+          <th>Birthday</th>
           <th>Card</th>
           <th>Card UID</th>
           <th>Balance</th>
@@ -308,9 +402,11 @@ const addmember = async () => {
             <td>{{ index+1 }}</td>
             
           <td>{{ member.name }}</td>
-          <td>{{ member.email }}</td>
+          
           <td>{{ member.phone_prefix }}{{ member.phone }}</td>
           <td>{{ member.mukafa_number }}</td>
+          <td>{{ member.email }}</td>
+          <td>{{ member.birthday }}</td>
 
           <td>{{ member.card_name }}</td>
           <td>{{ member.card_uid }}</td>

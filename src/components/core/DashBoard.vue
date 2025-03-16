@@ -1,6 +1,47 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
+import login_code from '@/composables/auth.js';
+const { dashboard_info } = login_code();
+import { useAuthStore } from '@/store/authStore';
+import {  useRouter } from 'vue-router';
+
+const dashboardInfo = ref({
+      customers: '',
+      staff_members: '',
+      cards: '',
+      purchases: '',
+      redemptions: '',
+      cancellations: ''
+    });
+
+const router = useRouter();
+
+const authStore = useAuthStore();
 import { Chart } from "chart.js/auto";
+
+
+const get_dashboard_info = async()=>{
+
+try{
+
+
+
+const res= await dashboard_info();
+//console.log(res);
+dashboardInfo.value.customers=res.customers;
+dashboardInfo.value.staff_members=res.staff_members;
+dashboardInfo.value.cards=res.cards;
+dashboardInfo.value.purchases=res.purchases;
+dashboardInfo.value.redemptions=res.redemptions;
+dashboardInfo.value.cancellations=res.cancellations;
+
+//console.log(dashboardInfo.value.customers);
+
+
+} catch (error) {
+console.error("Error fetching transactions:", error);
+}
+}
 
 // Doughnut chart configuration
 const chartConfig = {
@@ -194,9 +235,20 @@ const renderChart = () => {
 
 };
 
+
+
 // Lifecycle hooks
 onMounted(() => {
-  renderChart();
+  if (authStore.token) {
+    
+    renderChart();
+  get_dashboard_info();
+    
+  } else {
+    //console.log('22');
+    router.push({name: 'userLogin'});
+  }
+ 
 });
 
 onBeforeUnmount(() => {
@@ -220,37 +272,70 @@ onBeforeUnmount(() => {
 </script>
 <template>
    <div class="row mt-2 p-2">
-            <div class="col-md-3">
-                  <div class="card bg-success text-white">
+            <div class="col-md-2">
+                  <div class="card bg-primary text-white">
                         <div class="card-header text-center border-bottom">
-                              <h5> Members</h5>
+                              <h5> Customers</h5>
                         </div>
                         <div class="card-body text-center">
-                                    30
-                              </div>
-                  </div>
-            </div>
-            <div class="col-md-3">
-              <div class="card bg-info text-white">
-                        <div class="card-header text-center border-bottom">
-                              <h5>Cards</h5>
-                        </div>
-                        <div class="card-body text-center">
-                                4    
+                                    {{dashboardInfo.customers}}
                               </div>
                   </div>
             </div>
 
-            <div class="col-md-3">
-              <div class="card bg-primary text-white">
+
+            <div class="col-md-2">
+              <div class="card bg-secondary text-white">
                         <div class="card-header text-center border-bottom">
-                              <h5> Transactions</h5>
+                              <h5> Staff Members</h5>
                         </div>
                         <div class="card-body text-center">
-                                35    
+                          {{dashboardInfo.staff_members}}    
                               </div>
                   </div>
             </div>
+            <div class="col-md-2">
+              <div class="card bg-warning text-white">
+                        <div class="card-header text-center border-bottom">
+                              <h5>Cards</h5>
+                        </div>
+                        <div class="card-body text-center">
+                          {{dashboardInfo.cards}}  
+                              </div>
+                  </div>
+            </div>
+
+            <div class="col-md-2">
+              <div class="card bg-success text-white">
+                        <div class="card-header text-center border-bottom">
+                              <h5> Purchases</h5>
+                        </div>
+                        <div class="card-body text-center">
+                          {{dashboardInfo.purchases}}    
+                              </div>
+                  </div>
+            </div>
+            <div class="col-md-2">
+              <div class="card bg-info text-white">
+                        <div class="card-header text-center border-bottom">
+                              <h5> Redemptions</h5>
+                        </div>
+                        <div class="card-body text-center">
+                          {{dashboardInfo.redemptions}}    
+                              </div>
+                  </div>
+            </div>
+            <div class="col-md-2">
+              <div class="card bg-danger text-white">
+                        <div class="card-header text-center border-bottom">
+                              <h5> Cancellations</h5>
+                        </div>
+                        <div class="card-body text-center">
+                          {{dashboardInfo.cancellations}}    
+                              </div>
+                  </div>
+            </div>
+            
   </div>
       <div class="row mt-2 p-2">
             <div class="col-md-4">
