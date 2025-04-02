@@ -383,7 +383,7 @@ if(getstaffid!="Error"){
           },
         });
 
-        //console.log(res);
+        console.log(res);
     
         if (res.status === 200) {
           return res.data; // Successful response
@@ -473,6 +473,40 @@ if(getstaffid!="Error"){
 
 
     }
+
+    const cancel_completed_transaction = async (tran) => {
+
+     // console.log(tran);
+     let   url =`${authStore.baseURL}/partner/cancel_completed_transaction`;
+      try {
+        let res = await axios.post(url,tran,{
+          headers: {
+            Authorization: `Bearer ${authStore.token}`
+          }
+        });
+  
+
+          console.log(res.data);
+
+        
+        }
+        catch (error) {
+            console.error("Login error:", error);
+            alert("An error occurred. Please try again.");
+          }
+
+
+    }
+    const findtransaction= async (tranid) => {
+
+      let url =`${authStore.baseURL}/partner/findtransaction/${tranid}`;
+      let res = await axios.get(url,{
+        headers: {
+          Authorization: `Bearer ${authStore.token}`
+        }
+      });
+      return res.data
+    }
     const search_member= async (phone,phone_prefix) => {
 
       let url =`${authStore.baseURL}/partner/findmember/${phone}/${phone_prefix}`;
@@ -491,7 +525,7 @@ if(getstaffid!="Error"){
         
 
     }
-
+    
     const dashboard_info= async () => {
 
       let url =`${authStore.baseURL}/partner/dashboard/info`;
@@ -570,6 +604,8 @@ if(getstaffid!="Error"){
         all_members,
         sendotp,
         verify_otp_backend,
-        dashboard_info
+        dashboard_info,
+        findtransaction,
+        cancel_completed_transaction
       };
 }

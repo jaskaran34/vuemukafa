@@ -9,6 +9,8 @@ import IssuePoints from '@/components/core/IssuePoints.vue';
 import RedumptionCase from '@/components/core/RedumptionCase.vue';
 import CancelReturn from '@/components/core/CancelReturn.vue';
 
+import AddPurchase from  '@/components/core/addPurchase.vue';
+
 import CancellationReport from '@/components/core/Reports/CancellationReport.vue';
 import RefundsReport from '@/components/core/Reports/RefundsReport.vue';
 import SettlementsReport from '@/components/core/Reports/SettlementsReport.vue';
@@ -19,6 +21,7 @@ import BankAccounts from '@/components/core/settings/BankAccounts.vue';
 import AddMember from '@/components/core/settings/AddMember.vue';
 import VerifyMobile from '@/components/core/settings/verify_mobile.vue';
 
+import cancelCompleted from '@/components/core/cancelCompleted.vue';
 
 import ProfileUser from '@/components/auth/ProfileUser.vue';
 import TemporaryReload from '@/components/design/TemporaryReload.vue';
@@ -27,6 +30,9 @@ const routes = [
   { path: '/login', name: 'userLogin', component: userLogin },
   { path: '/dashboard', name: 'Dashboard', component: Dashboard, meta: { requiresAuth: true } },
   { path: '/issue_points', name: 'issue_points', component: IssuePoints, meta: { requiresAuth: true } },
+  { path: '/addPurchase', name: 'addPurchase', component: AddPurchase, meta: { requiresAuth: true } },
+
+  
   { path: '/redumption', name: 'redumption', component: RedumptionCase, meta: { requiresAuth: true } },
   { path: '/return', name: 'return', component: CancelReturn, meta: { requiresAuth: true } },
 
@@ -44,6 +50,8 @@ const routes = [
   { path: '/settings_addmember', name: 'settings_addmember', component: AddMember, meta: { requiresAuth: true } },
 
   { path: '/verify_mobile', name: 'verify_mobile', component: VerifyMobile, meta: { requiresAuth: true } },
+
+  { path: '/cancel_completed', name: 'cancel_completed', component: cancelCompleted, meta: { requiresAuth: true } },
 
   { path: '/reload', name: 'reload', component: TemporaryReload },
   /*

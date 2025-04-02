@@ -23,7 +23,14 @@
         <router-link class="nav-link" 
                :to="{ name: 'settings_addmember' }">Register Customer</router-link>
               </li>
-        <li class="nav-item">
+
+              
+              <li class="nav-item">
+          <router-link class="nav-link"
+            :to="{ name: 'addPurchase' }">Add Purchase</router-link>
+        </li>
+
+              <li class="nav-item">
           <router-link class="nav-link"
             :to="{ name: 'issue_points' }">Issue Points</router-link>
         </li>
@@ -36,8 +43,14 @@
         <li class="nav-item">
           <router-link class="nav-link"
             :to="{ name: 'return' }">Cancellation / Return</router-link>
+        </li><!--
+        
+        <li class="nav-item">
+          <router-link class="nav-link"
+            :to="{ name: 'cancel_completed' }">Cancel Completed Orders</router-link>
         </li>
-
+        
+-->
 
         <li class="nav-item">
           <a

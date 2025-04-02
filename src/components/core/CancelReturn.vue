@@ -140,7 +140,14 @@ const transcation_cancel=async(id)=>{
 
     let res=await cancel_transaction(id,data);
  
-       
+    if(res.msg=='cancelled'){
+
+      alert('Redemption Transaction Reverted');
+
+  
+     reloadRoute();  
+    }
+else{       
  let targetId=res.refrence_tran_id;
  const foundTransaction = transactions.value.find(item => item.id == targetId);
  if(cancel_type=='F'){
@@ -177,7 +184,7 @@ setTimeout(() => {
    reloadRoute();
 }, 5000); 
 
-    
+}
 
   }
   catch(e)
@@ -423,7 +430,7 @@ const show_hide_partial= ()=>{
                         <td style="text-align: left;">{{ transaction.type }}</td>
                         <td style="text-align: right;">{{ transaction.purchase_amount  }}</td>
                         <td style="text-align: right;">{{ transaction.mukafa_points }}</td>
-                        <td v-if="transaction.status=='pending' && transaction.type=='Credit'">
+                        <td v-if="transaction.status=='pending' ">
                             <button @click="cancel(transaction.id,index)" class="btn btn-danger" :id="'cancel_refund_btn_' + index">Cancel / Refund</button>
                         </td>
                         <td v-else> {{transaction.status }}</td>
@@ -463,7 +470,7 @@ const show_hide_partial= ()=>{
                 <label for="otp" class="form-label mb-0 me-2">Cancellation Type</label>
                 <select class="form-control" id="cancel_type" @change="show_hide_partial()" style="width: 150px !important;">
                   <option value="F" v-if="transaction.cancel_flag!='C'">Full Transaction</option>
-                  <option value="P">Partial</option>
+                  <option value="P"  v-if="transaction.type=='Credit'">Partial</option>
 
                 </select>
             </div>

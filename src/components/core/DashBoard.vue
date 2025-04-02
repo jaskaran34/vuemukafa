@@ -85,20 +85,22 @@ const chartConfig = {
 const chartConfig1 = {
   type: 'pie',
   data: {
-    labels: ['Red', 'Blue', 'Yellow'],
+    labels: ['KB', 'MB', 'GB','TB'],
     datasets: [
       {
-        label: 'Votes',
-        data: [300, 50, 100], // Data for each label
+        label: 'Tier',
+        data: [26, 4, 3,0], // Data for each label
         backgroundColor: [
           'rgba(255, 99, 132, 0.2)',
           'rgba(54, 162, 235, 0.2)',
           'rgba(255, 206, 86, 0.2)',
+          'rgba(153, 102, 255, 0.2)'
         ],
         borderColor: [
           'rgba(255, 99, 132, 1)',
           'rgba(54, 162, 235, 1)',
           'rgba(255, 206, 86, 1)',
+          'rgba(153, 102, 255, 1)'
         ],
         borderWidth: 1,
       },
@@ -122,20 +124,26 @@ const chartConfig1 = {
 const chartConfig2 = {
   type: 'bar',
   data: {
-    labels: ['Red', 'Blue', 'Yellow'],
+    labels: ['Oct-24','Nov-24','Dec-24', 'Jan-25', 'Feb-25','Mar-25'],
     datasets: [
       {
-        label: 'Votes',
-        data: [300, 50, 100], // Data for each label
+        label: 'New Customers',
+        data: [100,200,150,300, 50, 100], // Data for each label
         backgroundColor: [
           'rgba(255, 99, 132, 0.2)',
           'rgba(54, 162, 235, 0.2)',
           'rgba(255, 206, 86, 0.2)',
+          'rgba(75, 192, 192, 0.2)',
+          'rgba(255, 159, 64, 0.2)',
+          'rgba(153, 102, 255, 0.2)'
         ],
         borderColor: [
           'rgba(255, 99, 132, 1)',
           'rgba(54, 162, 235, 1)',
           'rgba(255, 206, 86, 1)',
+           'rgba(75, 192, 192, 1)',
+          'rgba(255, 159, 64, 1)',
+          'rgba(153, 102, 255, 1)'
         ],
         borderWidth: 1,
       },
@@ -158,22 +166,32 @@ const chartConfig2 = {
 const chartConfig4 = {
   type: 'line',
   data: {
-    labels: ['Red', 'Blue', 'Yellow'],
+    labels: ['11-03-2025','12-03-2025', '13-03-2025', '14-03-2025', '15-03-2025', '16-03-2025', '17-03-2025'], // X-axis labels
     datasets: [
       {
-        label: 'Votes',
-        data: [300, 50, 100], // Data for each label
-        backgroundColor: [
-          'rgba(255, 99, 132, 0.2)',
-          'rgba(54, 162, 235, 0.2)',
-          'rgba(255, 206, 86, 0.2)',
-        ],
-        borderColor: [
-          'rgba(255, 99, 132, 1)',
-          'rgba(54, 162, 235, 1)',
-          'rgba(255, 206, 86, 1)',
-        ],
-        borderWidth: 1,
+      
+        label: 'Purchases',
+        data: [10, 1, 17, 1, 5, 13,5], // Y-axis values
+        borderColor: 'rgba(255, 99, 132, 1)',
+        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+        borderWidth: 2,
+        tension: 0.4, // Smooth curves
+      },
+      {
+        label: 'Redemptions',
+        data: [10, 0, 0, 2, 4, 4,1],
+        borderColor: 'rgba(54, 162, 235, 1)',
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        borderWidth: 2,
+        tension: 0.4,
+      },
+      {
+        label: 'Cancellations',
+        data: [4, 2, 4, 6, 1, 1,3],
+        borderColor: 'rgba(255, 206, 86, 1)',
+        backgroundColor: 'rgba(255, 206, 86, 0.2)',
+        borderWidth: 2,
+        tension: 0.4,
       },
     ],
   },
@@ -181,15 +199,29 @@ const chartConfig4 = {
     responsive: true,
     plugins: {
       legend: {
-        position: 'top', // Position of the legend
+        position: 'top',
       },
       tooltip: {
-        enabled: true, // Enable tooltips
+        enabled: true,
+      },
+    },
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: 'Transactions weekly', // Label for X-axis
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: 'Count', // Label for Y-axis
+        },
+        beginAtZero: true,
       },
     },
   },
 };
-
 
 // Reference for the canvas
 const chartRef = ref(null);
@@ -338,54 +370,44 @@ onBeforeUnmount(() => {
             
   </div>
       <div class="row mt-2 p-2">
-            <div class="col-md-4">
+            <div class="col-md-6">
                   <div class="card card_graph">
                         <div class="card-header">
-                              
+                          <h5>Transactions last 7 Days</h5>
                         </div>
                         <div class="card-body">
-                              <canvas ref="chartRef"></canvas>       
+                              <canvas ref="chartRef4"></canvas>       
                               </div>
                   </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
                   <div class="card card_graph">
                         <div class="card-header">
-                              
-                        </div>
-                        <div class="card-body">
-                              <canvas ref="chartRef1"></canvas>       
-                              </div>
-                  </div>
-            </div>
-            <div class="col-md-4">
-                  <div class="card card_graph">
-                        <div class="card-header">
-                              
+                          <h5>New Customers (Month wise)</h5>
                         </div>
                         <div class="card-body">
                               <canvas ref="chartRef2"></canvas>       
                               </div>
                   </div>
             </div>
+            
         
       </div>
-      <div class="row">
+      <div class="row mt-2 p-2">
+        
             <div class="col-md-4">  
             <div class="card card_graph">
                   <div class="card-header">
-
+                    <h5> Customers (Tier wise)</h5>
                   </div>
                   <div class="card-body">
-                        <canvas ref="chartRef4"></canvas> 
+                        <canvas ref="chartRef1"></canvas> 
                   </div>
             </div>
       </div>
       </div>
     </template>
     <style scoped>
-.card_graph{
-      height: 330px;
-}
+
 </style>
     
