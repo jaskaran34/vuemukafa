@@ -183,7 +183,7 @@ const order_number=document.getElementById('order_no').value;
   let result_tran;
  if(value_redeem>0){
      result_tran=await redeempoints(value_redeem,order_number,member_account.value.member_unique_identifier,member_account.value.member_carduid);
-console.log(result_tran);
+//console.log(result_tran);
  }
  otp.value=false;
  ini.value=false;
