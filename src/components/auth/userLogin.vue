@@ -27,7 +27,7 @@ const submitForm = () => {
           >
             <option value="" disabled selected>Select</option>
             <option value="P">Partner</option>
-            <option value="S">Staff</option>
+            <option value="S">Member</option>
           </select>
 
           </div>
