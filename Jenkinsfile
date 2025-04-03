@@ -1,37 +1,40 @@
 pipeline {
     tools {
-        nodejs "node20" // Ensure this tool is configured correctly in Jenkins
+        nodejs "node20"
     }
 
     agent any
 
     environment {
-        SSH_USER = 'jsqa' // Change to your EC2 username
-        SSH_HOST = '40.172.43.160'
-        SSH_KEY_CREDENTIALS = 'jenkins-ssh' // SSH credentials ID
-        DEST_DIR = '/home/jsqa/mukafa-frontend/dist'  // Destination directory on the EC2 server
+        BASTION_USER = 'ubuntu'
+        PRIVATE_USER = 'jsqa'
+        DEST_DIR = '/home/jsqa/mukafa-frontend/dist'
+        PRIVATE_IP = '10.0.2.38'
+        BASTION_IP = '51.112.38.2' // Replace with real bastion public IP
     }
 
     stages {
         stage('Install Dependencies') {
             steps {
-                sh 'npm install' // Install npm dependencies
+                sh 'npm install'
             }
         }
 
         stage('Build') {
             steps {
-                sh 'npm run build' // Run npm build to generate the production-ready files
+                sh 'npm run build'
             }
         }
 
-        stage('Sync Files to served destination') {
+        stage('Deploy to Private EC2') {
             steps {
                 sshagent(['jenkins-ssh']) {
-                    // Use SCP to copy the build files to the destination directory on the EC2 instance
-                    sh """
-                    scp -r -o StrictHostKeyChecking=no dist/* ${SSH_USER}@${SSH_HOST}:${DEST_DIR}/
-                    """
+                    sh '''
+                    scp -o UserKnownHostsFile=/dev/null \
+                        -o StrictHostKeyChecking=no \
+                        -o ProxyCommand="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -W %h:%p ${BASTION_USER}@${BASTION_IP}" \
+                        -r dist/* ${PRIVATE_USER}@${PRIVATE_IP}:${DEST_DIR}/
+                    '''
                 }
             }
         }
