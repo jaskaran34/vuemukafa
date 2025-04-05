@@ -5,6 +5,19 @@ const { dashboard_info } = login_code();
 import { useAuthStore } from '@/store/authStore';
 import {  useRouter } from 'vue-router';
 
+const weeklyTxnLabels = ref([]);
+const weeklyTxnPurchases = ref([]);
+const weeklyTxnRedemptions = ref([]);
+const weeklyTxnCancellations = ref([]);
+const last_six_months = ref([]);
+const members_registered = ref([]);
+const tier_name = ref([]);
+const tier_count = ref([]);
+const benefits = ref([])
+
+
+
+
 const dashboardInfo = ref({
       customers: '',
       staff_members: '',
@@ -28,68 +41,65 @@ try{
 
 const res= await dashboard_info();
 //console.log(res);
-dashboardInfo.value.customers=res.customers;
-dashboardInfo.value.staff_members=res.staff_members;
-dashboardInfo.value.cards=res.cards;
-dashboardInfo.value.purchases=res.purchases;
-dashboardInfo.value.redemptions=res.redemptions;
-dashboardInfo.value.cancellations=res.cancellations;
+dashboardInfo.value.customers=res.dashboardInfo.customers;
+dashboardInfo.value.staff_members=res.dashboardInfo.staff_members;
+dashboardInfo.value.cards=res.dashboardInfo.cards;
+dashboardInfo.value.purchases=res.dashboardInfo.purchases;
+dashboardInfo.value.redemptions=res.dashboardInfo.redemptions;
+dashboardInfo.value.cancellations=res.dashboardInfo.cancellations;
 
-//console.log(dashboardInfo.value.customers);
+const apiData = res.WeeklyTransactionSummary;
+//console.log(apiData);
 
+weeklyTxnLabels.value = [...apiData.map(item => item.txn_date)];
+ 
+console.log(weeklyTxnLabels);
+//console.log("Converted Labels:", weeklyTxnLabels.value[0]);
+
+weeklyTxnPurchases.value = [...apiData.map(item => Number(item.purchases))];
+weeklyTxnRedemptions.value = [...apiData.map(item => Number(item.redemptions))];
+weeklyTxnCancellations.value = [...apiData.map(item => Number(item.cancellations))];
+
+
+
+const memData=res.getMonthlyMemberStats;
+
+last_six_months.value = [...memData.map(item => item.month_year)];
+members_registered.value = [...memData.map(item => Number(item.new_members_count))];
+
+
+const tierData=res.getMembersByTier;
+
+tier_name.value = [...tierData.map(item => item.tier_name)];
+tier_count.value = [...tierData.map(item => Number(item.member_count))];
+
+
+
+
+
+benefits.value=res.getRecentbenefitTransactions;
+ 
 
 } catch (error) {
 console.error("Error fetching transactions:", error);
 }
 }
 
-// Doughnut chart configuration
-const chartConfig = {
-  type: 'doughnut',
-  data: {
-    labels: ['Red', 'Blue', 'Yellow'],
-    datasets: [
-      {
-        label: 'Votes',
-        data: [300, 50, 100], // Data for each label
-        backgroundColor: [
-          'rgba(255, 99, 132, 0.2)',
-          'rgba(54, 162, 235, 0.2)',
-          'rgba(255, 206, 86, 0.2)',
-        ],
-        borderColor: [
-          'rgba(255, 99, 132, 1)',
-          'rgba(54, 162, 235, 1)',
-          'rgba(255, 206, 86, 1)',
-        ],
-        borderWidth: 1,
-      },
-    ],
-  },
-  options: {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'bottom', // Position of the legend
-      },
-      tooltip: {
-        enabled: true, // Enable tooltips
-      },
-    },
-  },
-};
 
 
+let chartConfig1=null;
+
+const createChartConfig1 = () => {
 
 // Doughnut chart configuration
-const chartConfig1 = {
+ chartConfig1 = {
   type: 'pie',
   data: {
-    labels: ['KB', 'MB', 'GB','TB'],
+    labels: tier_name.value,
     datasets: [
       {
         label: 'Tier',
-        data: [26, 4, 3,0], // Data for each label
+        data: tier_count.value, // Data for each label
         backgroundColor: [
           'rgba(255, 99, 132, 0.2)',
           'rgba(54, 162, 235, 0.2)',
@@ -119,16 +129,18 @@ const chartConfig1 = {
   },
 };
 
+}
+let chartConfig2=null;
 
-
-const chartConfig2 = {
+const createChartConfig2 = () => {
+ chartConfig2 = {
   type: 'bar',
   data: {
-    labels: ['Oct-24','Nov-24','Dec-24', 'Jan-25', 'Feb-25','Mar-25'],
+    labels: last_six_months.value,
     datasets: [
       {
         label: 'New Customers',
-        data: [100,200,150,300, 50, 100], // Data for each label
+        data: members_registered.value, // Data for each label
         backgroundColor: [
           'rgba(255, 99, 132, 0.2)',
           'rgba(54, 162, 235, 0.2)',
@@ -161,71 +173,67 @@ const chartConfig2 = {
     },
   },
 };
+}
+let chartConfig4 = null;
 
-
-const chartConfig4 = {
-  type: 'line',
-  data: {
-    labels: ['11-03-2025','12-03-2025', '13-03-2025', '14-03-2025', '15-03-2025', '16-03-2025', '17-03-2025'], // X-axis labels
-    datasets: [
-      {
-      
-        label: 'Purchases',
-        data: [10, 1, 17, 1, 5, 13,5], // Y-axis values
-        borderColor: 'rgba(255, 99, 132, 1)',
-        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-        borderWidth: 2,
-        tension: 0.4, // Smooth curves
-      },
-      {
-        label: 'Redemptions',
-        data: [10, 0, 0, 2, 4, 4,1],
-        borderColor: 'rgba(54, 162, 235, 1)',
-        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-        borderWidth: 2,
-        tension: 0.4,
-      },
-      {
-        label: 'Cancellations',
-        data: [4, 2, 4, 6, 1, 1,3],
-        borderColor: 'rgba(255, 206, 86, 1)',
-        backgroundColor: 'rgba(255, 206, 86, 0.2)',
-        borderWidth: 2,
-        tension: 0.4,
-      },
-    ],
-  },
-  options: {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top',
-      },
-      tooltip: {
-        enabled: true,
-      },
+const createChartConfig4 = () => {
+  chartConfig4 = {
+    type: 'line',
+    data: {
+      labels: weeklyTxnLabels.value,
+      datasets: [
+        {
+          label: 'Purchases',
+          data: weeklyTxnPurchases.value,
+          borderColor: 'rgba(255, 99, 132, 1)',
+          backgroundColor: 'rgba(255, 99, 132, 0.2)',
+          borderWidth: 2,
+          tension: 0.4,
+        },
+        {
+          label: 'Redemptions',
+          data: weeklyTxnRedemptions.value,
+          borderColor: 'rgba(54, 162, 235, 1)',
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          borderWidth: 2,
+          tension: 0.4,
+        },
+        {
+          label: 'Cancellations',
+          data: weeklyTxnCancellations.value,
+          borderColor: 'rgba(255, 206, 86, 1)',
+          backgroundColor: 'rgba(255, 206, 86, 0.2)',
+          borderWidth: 2,
+          tension: 0.4,
+        },
+      ],
     },
-    scales: {
-      x: {
-        title: {
-          display: true,
-          text: 'Transactions weekly', // Label for X-axis
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'top' },
+        tooltip: { enabled: true },
+      },
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: 'Transactions weekly',
+          },
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Count',
+          },
+          beginAtZero: true,
         },
       },
-      y: {
-        title: {
-          display: true,
-          text: 'Count', // Label for Y-axis
-        },
-        beginAtZero: true,
-      },
     },
-  },
+  };
 };
 
-// Reference for the canvas
-const chartRef = ref(null);
-let chartInstance = null;
+
 
 
 const chartRef1 = ref(null);
@@ -242,11 +250,7 @@ const chartRef4 = ref(null);
 let chartInstance4 = null;
 
 // Function to render the chart
-const renderChart = () => {
-  if (chartInstance) {
-    chartInstance.destroy(); // Cleanup existing chart
-  }
-  chartInstance = new Chart(chartRef.value, chartConfig);
+const renderChart = async() => {
 
   if (chartInstance1) {
     chartInstance1.destroy(); // Cleanup existing chart
@@ -270,11 +274,16 @@ const renderChart = () => {
 
 
 // Lifecycle hooks
-onMounted(() => {
+onMounted(async() => {
   if (authStore.token) {
-    
-    renderChart();
-  get_dashboard_info();
+  
+    await get_dashboard_info();
+    createChartConfig4();  
+    createChartConfig2();
+    createChartConfig1();
+    await renderChart();
+   
+  
     
   } else {
     //console.log('22');
@@ -284,9 +293,6 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
-  if (chartInstance) {
-    chartInstance.destroy(); // Cleanup memory
-  }
   if (chartInstance1) {
     chartInstance1.destroy(); // Cleanup memory
   }
@@ -396,7 +402,8 @@ onBeforeUnmount(() => {
       <div class="row mt-2 p-2">
         
             <div class="col-md-4">  
-            <div class="card card_graph">
+            
+              <div class="card card_graph">
                   <div class="card-header">
                     <h5> Customers (Tier wise)</h5>
                   </div>
@@ -404,7 +411,42 @@ onBeforeUnmount(() => {
                         <canvas ref="chartRef1"></canvas> 
                   </div>
             </div>
+           
+
       </div>
+      <div class="col-md-8">  
+            <div class="card">
+                  <div class="card-header">
+                    <h5> Mukafa Benifits</h5>
+                  </div>
+                  <div class="card-body" id="benefit_table">
+                    <table v-if="benefits.length" class="table table-bordered table-striped">
+      <thead class="table-dark">
+        <tr>
+          <th>Transaction ID</th>
+          <th>Member Name</th>
+          <th>Transaction Type</th>
+          <th>Points</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(item, index) in benefits" :key="index">
+          <td>{{ item.transaction_id }}</td>
+          <td>{{ item.member_name }}</td>
+          <td>{{ item.transaction_type }}</td>
+          <td>{{ item.points }}</td>
+          <td>{{ item.created_at }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div v-else class="text-muted">No data available.</div>
+                  </div>
+          
+                </div>
+            
+          </div>
       </div>
     </template>
     <style scoped>
