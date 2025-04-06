@@ -175,11 +175,14 @@ const order_number=document.getElementById('order_no').value;
     return false; 
     }
 
-
+if(value<=0){
+  errors.value.order_amt = 'Invalid Order Amount';
+  return false;
+}
 
   try{
  let result=await addtransaction(value,order_number,member_account.value.member_unique_identifier,member_account.value.member_carduid);
- console.log(result);
+ //console.log(result);
   let result_tran;
  if(value_redeem>0){
      result_tran=await redeempoints(value_redeem,order_number,member_account.value.member_unique_identifier,member_account.value.member_carduid);

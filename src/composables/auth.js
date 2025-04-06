@@ -474,6 +474,27 @@ if(getstaffid!="Error"){
 
     }
 
+    
+    const member_status_update = async (mukafa_no,active) => {
+
+      let   url =`${authStore.baseURL}/partner/member_status_update`;
+
+      try {
+        let res = await axios.post(url,{mukafa_no,active},{
+          headers: {
+            Authorization: `Bearer ${authStore.token}`
+          }
+        });
+  
+console.log(res.data);
+
+        
+        }
+        catch (error) {
+            console.error("Login error:", error);
+            alert("An error occurred. Please try again.");
+          }
+    }
     const cancel_completed_transaction = async (tran) => {
 
      // console.log(tran);
@@ -608,6 +629,7 @@ if(getstaffid!="Error"){
         verify_otp_backend,
         dashboard_info,
         findtransaction,
-        cancel_completed_transaction
+        cancel_completed_transaction,
+        member_status_update
       };
 }

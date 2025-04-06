@@ -106,9 +106,19 @@
                 <router-link class="nav-link" 
                  :to="{ name: 'settings_addstaff' }">Add Staff</router-link>
               </li>
+
+              <li>
+                <router-link class="nav-link" 
+                 :to="{ name: 'alertSettings' }">alertSettings</router-link>
+              </li>
+              
               <li>
                 <router-link class="nav-link" 
                :to="{ name: 'settings_bankaccounts' }">Bank Accounts</router-link>
+              </li>
+              <li>
+                <router-link class="nav-link" 
+               :to="{ name: 'RefundSetting' }">Refund Setting</router-link>
               </li>
               
             </ul>
