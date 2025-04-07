@@ -4,7 +4,7 @@ import { defineStore } from 'pinia';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    baseURL: 'https://ojxzzwhte8.execute-api.eu-north-1.amazonaws.com',
+    baseURL: 'https://gocml861g1.execute-api.eu-north-1.amazonaws.com/dev',
     token: localStorage.getItem('token') || '',
     user: null,
     error: null,
