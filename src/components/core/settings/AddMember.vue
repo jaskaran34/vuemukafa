@@ -1,7 +1,7 @@
 <script setup>
 import { ref,onMounted, computed,watch } from 'vue';
 import login_code from '@/composables/auth.js';
-const { register_member,all_members,sendotp,verify_otp_backend } = login_code();
+const { register_member,all_members,sendotp,verify_otp_backend,member_status_update } = login_code();
 import { v4 as uuidv4 } from 'uuid';
 
 import { useRoute, useRouter } from 'vue-router';
@@ -58,7 +58,7 @@ const fetchTransactions = async (pageurl = null) => {
   
     //
     memberData.value = result.data; 
-    //console.log(result.value);
+    
 
     pagination.value = {
       current_page: result.pagination.current_page,
@@ -224,6 +224,16 @@ const addmember = async () => {
   otp.value=true;
   
 };
+const onStatusChange = async(mukafa_no,active)=>{
+
+  await member_status_update(mukafa_no,active);
+    
+  await reloadRoute();
+  
+
+
+}
+
 </script>
 
 <template>
@@ -391,10 +401,11 @@ const addmember = async () => {
           <th>Email</th>
           <th>Birthday</th>
           <th>Card</th>
-          <th>Card UID</th>
+          <!--<th>Card UID</th>-->
           <th>Balance</th>
           <th>Pending</th>
           <th>created at</th>
+          <th>Status</th>
         </tr>
       </thead>
       <tbody>
@@ -409,11 +420,22 @@ const addmember = async () => {
           <td>{{ member.birthday }}</td>
 
           <td>{{ member.card_name }}</td>
-          <td>{{ member.card_uid }}</td>
+          <!--<td>{{ member.card_uid }}</td>-->
           <td>{{ member.balance }}</td>
           <td>{{ member.balance_pending }}</td>
 
           <td>{{ member.createddate }}</td>
+          <td>
+          <select
+            v-model="member.active"
+            @change="onStatusChange(member.mukafa_number, member.active)"
+            class="form-select"
+          >
+            <option value="Y" class="text-success">Active</option>
+            <option value="N" class="text-warning">Inactive</option>
+          </select>
+</td>
+          
 
         </tr>
       </tbody>

@@ -21,16 +21,25 @@ import BankAccounts from '@/components/core/settings/BankAccounts.vue';
 import AddMember from '@/components/core/settings/AddMember.vue';
 import VerifyMobile from '@/components/core/settings/verify_mobile.vue';
 
+import alertSettings from '@/components/core/settings/alertSettings.vue';
+
+import RefundSetting from '@/components/core/settings/RefundSetting.vue';
+
 import cancelCompleted from '@/components/core/cancelCompleted.vue';
 
 import ProfileUser from '@/components/auth/ProfileUser.vue';
 import TemporaryReload from '@/components/design/TemporaryReload.vue';
+
+
 const routes = [
   { path: '/', redirect: '/login' },
   { path: '/login', name: 'userLogin', component: userLogin },
   { path: '/dashboard', name: 'Dashboard', component: Dashboard, meta: { requiresAuth: true } },
   { path: '/issue_points', name: 'issue_points', component: IssuePoints, meta: { requiresAuth: true } },
   { path: '/addPurchase', name: 'addPurchase', component: AddPurchase, meta: { requiresAuth: true } },
+
+  { path: '/alertSettings', name: 'alertSettings', component: alertSettings, meta: { requiresAuth: true } },
+  { path: '/RefundSetting', name: 'RefundSetting', component: RefundSetting, meta: { requiresAuth: true } },
 
   
   { path: '/redumption', name: 'redumption', component: RedumptionCase, meta: { requiresAuth: true } },
