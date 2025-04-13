@@ -4,23 +4,76 @@ import login_code from '@/composables/auth.js';
 const { findmember,addtransaction,redeempoints,member_tran_history,sendotp,verify_otp_backend } = login_code();
 import { v4 as uuidv4 } from 'uuid';
 
+import { useRoute, useRouter } from 'vue-router';
+
+const route = useRoute();
+const router = useRouter();
+
+const loadingPurchase = ref(true);
+
 const input_order_amt=ref(0);
 const input_redeem_amt=ref(0);
 const input_final_order_amt=ref(0);
 
-watch([input_order_amt, input_redeem_amt], () => {
-  input_final_order_amt.value = input_order_amt.value - input_redeem_amt.value;
-});
+const reloadRoute = async() => {
+   const currentRoute = { name: route.name, query: route.query, params: route.params, };
+    router.push({ name: 'reload', query: { targetRoute: JSON.stringify(currentRoute) } }); 
+  };
 
-const history = ref([]);
- 
 const errors = ref({
   account: '',
   otp:'',
   order_no:'',
   order_amt:'',
-  points:''
+  mukafa_points:'',
+  final_order_amt:'',
+  error_api:''
 });
+
+watch([input_order_amt, input_redeem_amt], () => {
+  const orderAmt = Number(input_order_amt.value);
+  const redeemAmt = Number(input_redeem_amt.value);
+
+  let valid = true;
+
+  // Validate input_order_amt
+  if (orderAmt < 0 || isNaN(orderAmt)) {
+    errors.value.order_amt = 'Order amount must be positive';
+    valid = false;
+  } else {
+    errors.value.order_amt = '';
+  }
+
+
+
+  if (redeemAmt < 0 || isNaN(redeemAmt) || !Number.isInteger(redeemAmt) || redeemAmt > member_account.value.member_redeem_amt) {
+    errors.value.mukafa_points = 'Redeem amount must be a non-negative integer and less than or equal to Balance '+ member_account.value.member_redeem_amt;
+    valid = false;
+  } else {
+    errors.value.mukafa_points = '';
+  }
+
+  // If both inputs are valid
+  if (valid) {
+    input_final_order_amt.value = orderAmt - redeemAmt;
+
+    if (input_final_order_amt.value > 0) {
+      loadingPurchase.value = false; 
+      errors.value.final_order_amt = '';
+    } else {
+      errors.value.final_order_amt = 'Final order amount must be greater than zero';
+      loadingPurchase.value = true; 
+    }
+  } else {
+    input_final_order_amt.value = 0;
+    errors.value.final_order_amt = 'Fix input errors to proceed';
+    loadingPurchase.value = true; 
+  }
+});
+
+const history = ref([]);
+ 
+
 
 const member_account=ref({
   member_name:'',
@@ -139,8 +192,8 @@ const report=ref({
 });
 const issue_points = async () => {
 
-
-    const value_redeem = document.getElementById('mukafa_points').value;
+  loadingPurchase.value = true; 
+      const value_redeem = document.getElementById('mukafa_points').value;
 
     const regex_redeem = /^[1-9]\d*$/;
     if(value_redeem > 0){
@@ -148,9 +201,19 @@ const issue_points = async () => {
     if (!regex_redeem.test(value_redeem) || parseFloat(value_redeem) <= 0)
    { 
     errors.value.mukafa_points = 'Invalid Mukafa Amount. Enter Postive Integers less than or equal to ' + member_account.value.member_redeem_amt;
+    loadingPurchase.value = false; 
     return false;
    }
     }
+
+
+   
+
+    if(parseInt(value_redeem, 10)>parseInt(member_account.value.member_redeem_amt, 10)){
+        errors.value.mukafa_points = 'Invalid Mukafa Amount. Enter Postive Integers less than or equal to ' + member_account.value.member_redeem_amt;
+        return false;
+    } 
+
 
 errors.value.account='';
 errors.value.otp='';
@@ -166,17 +229,20 @@ const order_number=document.getElementById('order_no').value;
 
   if (!regex.test(value) || parseFloat(value) <= 0)
    { 
-    errors.value.order_amt = 'Invalid Order Amount';
+    errors.value.final_order_amt = 'Invalid Order Amount';
+    loadingPurchase.value = false; 
     return false;
    }
 
    if (!order_number || !numberRegex.test(order_number)) { 
     errors.value.order_no = 'Invalid Order Number';
+    loadingPurchase.value = false; 
     return false; 
     }
 
 if(value<=0){
   errors.value.order_amt = 'Invalid Order Amount';
+  loadingPurchase.value = false; 
   return false;
 }
 
@@ -198,8 +264,7 @@ if(value<=0){
  report.value.transaction_status=result.transaction_status;
  report.value.type=result.type;
  report.value.status=result.status;
-
-report.value.redeem_points = result_tran.mukafa_points?.toString().trim() ? result_tran.mukafa_points : 0;
+ report.value.redeem_points = (result_tran && result_tran.mukafa_points)  ? result_tran.mukafa_points: 0;
 
 
 
@@ -210,11 +275,16 @@ report.value.redeem_points = result_tran.mukafa_points?.toString().trim() ? resu
     
    ini.value=true;
    report.value.display=false;
+   //loadingPurchase.value = false; 
+   reloadRoute();
+   
    }, 5000);  
+    
   }catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    //console.error('Error:', errorMessage);
-    errors.value.points = errorMessage;  
+    console.error('Error:', errorMessage);
+    errors.value.error_api = errorMessage;  
+    loadingPurchase.value = false; 
   }
 
 
@@ -383,16 +453,19 @@ report.value.redeem_points = result_tran.mukafa_points?.toString().trim() ? resu
             readonly
             
           />
-          
+          <span v-if="errors.final_order_amt" class="text-danger">{{ errors.final_order_amt }}</span>
         </div>
       </div>
-      <button type="submit" class="btn btn-success">Add Purchase</button>
-
-      
-
+      <button 
+  type="submit" 
+  class="btn btn-success" 
+  :disabled="loadingPurchase"
+>
+ Add Purchase
+</button>
       
     </form>
-    <span v-if="errors.points" class="text-danger">{{ errors.points }}</span>
+    <span v-if="errors.error_api" class="text-danger">{{ errors.error_api }}</span>
   </div>
 
 

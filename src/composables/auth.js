@@ -116,11 +116,20 @@ export default function login_code(){
       throw new Error('Error to Add Transaction');
     }
   }catch (error) {
+     
     if (error.response?.status === 422) {
-      // Extract validation error messages
-      const validationErrors = error.response.data.errors;
-      const errorMessages = Object.values(validationErrors).flat().join(', ');
-      throw new Error(errorMessages || 'Validation error occurred');
+      const data = error.response.data;
+    
+      if (data?.error) {
+        // Custom single error message (like: "Purchase already exists...")
+        throw new Error(data.error);
+      } else if (data?.errors) {
+        // Laravel form validation style
+        const errorMessages = Object.values(data.errors).flat().join(', ');
+        throw new Error(errorMessages || 'Validation error occurred');
+      } else {
+        throw new Error('Validation error occurred');
+      }
     }
     if (error.response?.status === 404) {
       // Extract validation error messages
