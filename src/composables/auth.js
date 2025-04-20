@@ -518,6 +518,35 @@ if(getstaffid!="Error"){
 
     }
 
+    
+
+    const set_bank_account_settings = async (data) => {
+
+      console.log(data);
+      let   url =`${authStore.baseURL}/partner/bank_account_settings/update`;
+
+      try {
+        let res = await axios.post(url,data,{
+          headers: {
+            Authorization: `Bearer ${authStore.token}`
+          }
+        });
+
+        //console.log(res.data);
+
+        if(res.status==200){
+          alert("Updated");
+
+        }
+  
+        
+        }
+        catch (error) {
+            console.error("Login error:", error);
+            alert("An error occurred. Please try again.");
+          }
+
+    }
     const set_return_period = async (return_time) => {
 
       let   url =`${authStore.baseURL}/partner/set_return_period`;
@@ -618,6 +647,22 @@ if(getstaffid!="Error"){
        return res.data
 
         
+
+    }
+
+    
+    const get_bank_account_settings= async () => {
+
+      let url =`${authStore.baseURL}/partner/bank_account_settings`;
+
+      
+      let res = await axios.get(url,{
+          headers: {
+            Authorization: `Bearer ${authStore.token}`
+          }
+        });
+
+       return res.data
 
     }
 
@@ -725,6 +770,8 @@ if(getstaffid!="Error"){
         cancel_completed_transaction,
         member_status_update,
         get_return_period,
-        set_return_period
+        set_return_period,
+        get_bank_account_settings,
+        set_bank_account_settings
       };
 }
