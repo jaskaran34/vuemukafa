@@ -25,7 +25,7 @@ const submitForm = () => {
             id="login_type"
             required
           >
-            <option value="" disabled selected>Select</option>
+            <option value="" disabled selected>Select Login As</option>
             <option value="P">Partner</option>
             <option value="S">Member</option>
           </select>

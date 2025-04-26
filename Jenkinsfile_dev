@@ -21,7 +21,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'npm run build' // Run npm build to generate the production-ready files
+                sh 'npm run build:dev' // Run npm build to generate the production-ready files
             }
         }
 
