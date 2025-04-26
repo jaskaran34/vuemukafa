@@ -18,7 +18,7 @@ const submitForm = () => {
           <!-- Form -->
           <form @submit.prevent="submitForm">
             <div class="mb-3">
-              <label for="loginas" class="form-label">Login As</label>
+              <label for="loginas" class="form-label">Login User As</label>
             <select
             v-model="login_type"
             class="form-control" style="width: 350px !important;"
