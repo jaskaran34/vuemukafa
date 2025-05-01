@@ -116,11 +116,20 @@ export default function login_code(){
       throw new Error('Error to Add Transaction');
     }
   }catch (error) {
+     
     if (error.response?.status === 422) {
-      // Extract validation error messages
-      const validationErrors = error.response.data.errors;
-      const errorMessages = Object.values(validationErrors).flat().join(', ');
-      throw new Error(errorMessages || 'Validation error occurred');
+      const data = error.response.data;
+    
+      if (data?.error) {
+        // Custom single error message (like: "Purchase already exists...")
+        throw new Error(data.error);
+      } else if (data?.errors) {
+        // Laravel form validation style
+        const errorMessages = Object.values(data.errors).flat().join(', ');
+        throw new Error(errorMessages || 'Validation error occurred');
+      } else {
+        throw new Error('Validation error occurred');
+      }
     }
     if (error.response?.status === 404) {
       // Extract validation error messages
@@ -430,6 +439,7 @@ if(getstaffid!="Error"){
       }
     }
 
+<<<<<<< HEAD
 
 
     const allorders= async (pageurl = null,params) =>{
@@ -442,52 +452,69 @@ if(getstaffid!="Error"){
         const url = pageurl ||`${baseUrl}?${params.toString()}`;
        // console.log(url);
         let res = await axios.get(url, {
+=======
+    const register_member = async (member) => {
+      try {
+        const url = `${authStore.baseURL}/member/register`;
+    
+        const obj = {
+          email: member.member_email,
+          name: member.member_name,
+          phone: member.member_phone,
+          phone_prefix: member.member_countryCode,
+          partner_id: authStore.user.id.toString(),
+          birthday: member.member_dob,
+          anniversary_date: member.member_ad
+        };
+    
+        const res = await axios.post(url, obj, {
+>>>>>>> 479e4785981953765b75e51907608913602b0399
           headers: {
             Authorization: `Bearer ${authStore.token}`
           }
         });
     
-
-        if (res.status === 200) {
-         
-          //console.log(res);
-          return res;
-        } else {
-          throw new Error('Failed to find member');
+        if (res.status === 201) {
+          alert('Member Registered Successfully!');
+          return res.data;
         }
+    
       } catch (error) {
-        throw new Error(error?.response?.data?.message || error.message || 'Network error');
-      }
-    }
-
-
-
-    const register_member= async(member)=>{
-      let url =`${authStore.baseURL}/member/register`;
-
-     let obj={
-            "email":member.member_email,
-            "name":member.member_name,
-            "phone":member.member_phone,
-            "phone_prefix":member.member_countryCode,
-            "partner_id":authStore.user.id.toString(),
-            "birthday":member.member_dob,
-            "anniversary_date":member.member_ad
-              }
-
-     
-      let res = await axios.post(url,obj,{
-        headers: {
-          Authorization: `Bearer ${authStore.token}`
+        let errorMessage = 'Something went wrong.';
+    
+        if (error.response) {
+          const status = error.response.status;
+          const data = error.response.data;
+    
+          if (status === 422) {
+            // Validation Error
+            if (data.errors && typeof data.errors === 'object') {
+              const firstKey = Object.keys(data.errors)[0];
+              errorMessage = data.errors[firstKey][0];
+            } else if (data.message) {
+              errorMessage = data.message;
+            }
+          } else if (status === 404) {
+            // Partner missing
+            if (data.message && data.errors) {
+              errorMessage = `${data.message}: ${data.errors}`;
+            } else if (data.message) {
+              errorMessage = data.message;
+            }
+          } else if (data.message) {
+            errorMessage = data.message;
+          } else if (typeof data === 'string') {
+            errorMessage = data;
+          }
+        } else if (error.message) {
+          errorMessage = error.message;
         }
-      });
-
-      if(res.status==201){
-        alert('Success');
-       return res.data;
+    
+        alert(errorMessage);
+    
+        throw error; // Optional: rethrow if needed
       }
-      
-    }
+    };
 
     const getUser= async (token) =>{
         let url =`${authStore.baseURL}/partner`;
@@ -507,6 +534,60 @@ if(getstaffid!="Error"){
     }
 
     
+
+    const set_bank_account_settings = async (data) => {
+
+      console.log(data);
+      let   url =`${authStore.baseURL}/partner/bank_account_settings/update`;
+
+      try {
+        let res = await axios.post(url,data,{
+          headers: {
+            Authorization: `Bearer ${authStore.token}`
+          }
+        });
+
+        //console.log(res.data);
+
+        if(res.status==200){
+          alert("Updated");
+
+        }
+  
+        
+        }
+        catch (error) {
+            console.error("Login error:", error);
+            alert("An error occurred. Please try again.");
+          }
+
+    }
+    const set_return_period = async (return_time) => {
+
+      let   url =`${authStore.baseURL}/partner/set_return_period`;
+
+      try {
+        let res = await axios.post(url,{return_time},{
+          headers: {
+            Authorization: `Bearer ${authStore.token}`
+          }
+        });
+
+        if(res.status==200){
+          alert("Return Time Updated");
+
+        }
+  
+         //console.log(res.data);
+
+        
+        }
+        catch (error) {
+            console.error("Login error:", error);
+            alert("An error occurred. Please try again.");
+          }
+    }
+    
     const member_status_update = async (mukafa_no,active) => {
 
       let   url =`${authStore.baseURL}/partner/member_status_update`;
@@ -517,8 +598,13 @@ if(getstaffid!="Error"){
             Authorization: `Bearer ${authStore.token}`
           }
         });
+
+        if(res.status==200){
+          alert('Mukafa Account No. '+ mukafa_no + ' status changed to ' + (active === 'Y' ? 'Active' : 'Inactive'));
+
+        }
   
-console.log(res.data);
+         //console.log(res.data);
 
         
         }
@@ -578,7 +664,42 @@ console.log(res.data);
         
 
     }
+
     
+    const get_bank_account_settings= async () => {
+
+      let url =`${authStore.baseURL}/partner/bank_account_settings`;
+
+      
+      let res = await axios.get(url,{
+          headers: {
+            Authorization: `Bearer ${authStore.token}`
+          }
+        });
+
+       return res.data
+
+    }
+
+    
+    
+    const get_return_period= async () => {
+
+      let url =`${authStore.baseURL}/partner/get_return_period`;
+
+      
+      let res = await axios.get(url,{
+          headers: {
+            Authorization: `Bearer ${authStore.token}`
+          }
+        });
+
+       return res.data
+
+        
+
+    }
+
     const dashboard_info= async () => {
 
       let url =`${authStore.baseURL}/partner/dashboard/info`;
@@ -663,6 +784,10 @@ console.log(res.data);
         dashboard_info,
         findtransaction,
         cancel_completed_transaction,
-        member_status_update
+        member_status_update,
+        get_return_period,
+        set_return_period,
+        get_bank_account_settings,
+        set_bank_account_settings
       };
 }

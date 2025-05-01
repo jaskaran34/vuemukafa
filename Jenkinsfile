@@ -8,7 +8,7 @@ pipeline {
     environment {
         BASTION_USER = 'ubuntu'
         PRIVATE_USER = 'jsqa'
-        DEST_DIR = '/home/jsqa/mukafa-frontend/dist'
+        DEST_DIR = '/home/jsqa/temp'
         PRIVATE_IP = '10.0.2.38'
         BASTION_IP = '51.112.38.2' // Replace with real bastion public IP
     }

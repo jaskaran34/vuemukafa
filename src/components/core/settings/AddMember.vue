@@ -9,6 +9,8 @@ import { useRoute, useRouter } from 'vue-router';
 const route = useRoute();
 const router = useRouter();
 
+const readonly_add = ref(false);
+
 import { useAuthStore } from '@/store/authStore';
 const authStore = useAuthStore();
 
@@ -55,7 +57,7 @@ const fetchTransactions = async (pageurl = null) => {
 
   let result=await all_members(pageurl,params);
 
-  
+ 
     //
     memberData.value = result.data; 
     
@@ -116,45 +118,62 @@ const errors=ref({
 });
 
 const verify_otp = async () => {
+  // Reset all field errors
+  errors.value.name = '';
+  errors.value.email = '';
+  errors.value.phone = '';
+  errors.value.dob = '';
+  errors.value.password = '';
+  errors.value.otp = '';
 
-  errors.value.name='';
-    errors.value.email='';
-    errors.value.phone='';
-    errors.value.dob='';
-    errors.value.password='';
-    errors.value.otp='';
-    
+  try {
+    const otp_conf = await verify_otp_backend(
+      document.getElementById('otp_message_id').value,
+      null,
+      'register_customer',
+      document.getElementById('otp_val').value
+    );
 
-try{
-let otp_conf=await verify_otp_backend(document.getElementById('otp_message_id').value,
-                        null,
-                        'register_customer',
-                        document.getElementById('otp_val').value);
+    if (otp_conf === 'ok') {
+      await register_member(form.value);
+      await reloadRoute();
+    } else {
+      errors.value.otp = 'Invalid OTP.';
+    }
 
-                      
+  } catch (error) {
+    readonly_add.value=false;
+    if (error.response) {
+      const status = error.response.status;
+      const data = error.response.data;
 
-  if(otp_conf=='ok'){
-  
-    await  register_member(form.value);
-      // console.log(res);
-        await reloadRoute();
+      if (status === 422) {
+        // Laravel Validation Error handling
+        if (data.errors && typeof data.errors === 'object') {
+          const firstKey = Object.keys(data.errors)[0];
+          errors.value[firstKey] = data.errors[firstKey][0];
+        } else if (data.message) {
+          errors.value.otp = data.message;
+        }
+      } else if (data.message) {
+        errors.value.otp = data.message;
+      } else if (typeof data === 'string') {
+        errors.value.otp = data;
+      } else {
+        errors.value.otp = 'An unexpected error occurred.';
+      }
+    } else if (error.message) {
+      errors.value.otp = error.message;
+    } else {
+      errors.value.otp = 'An unexpected error occurred.';
+    }
   }
-  else{
-    errors.value.otp='Invalid Otp';
-  }
-
-}
-catch(error){
-  errors.value.otp='Invalid Otp';
-}
-  
-  
 };
 
 
 const addmember = async () => {
 
-
+  readonly_add.value=true;
     errors.value.name='';
     errors.value.email='';
     errors.value.phone='';
@@ -182,6 +201,7 @@ const addmember = async () => {
   
     if (!mobileRegex.test(form.value.member_phone)) { 
             errors.value.phone = 'Invalid mobile number. ';
+            readonly_add.value=false;
             return;
           }    
 
@@ -191,11 +211,13 @@ const addmember = async () => {
     || /<script.*?>.*<\/script>/.test(form.value.member_name)) 
     {
         errors.value.name = 'Invalid name.'; 
+        readonly_add.value=false;
         return;
          }
 
          if (form.value.member_email && !emailRegex.test(form.value.member_email)) {
             errors.value.email = 'Invalid email address';
+            readonly_add.value=false;
             return;
        }
 
@@ -203,14 +225,36 @@ const addmember = async () => {
 
     if (!form.value.member_dob) {
     errors.value.dob = 'Date of birth cannot be empty.';
+    readonly_add.value=false;
     return;
   }
 
-  const birthDate = new Date(form.value.member_dob);
+  let dob = form.value.member_dob;
+
+// If it's in DD-MM-YYYY format, convert it
+if (/^\d{2}-\d{2}-\d{4}$/.test(dob)) {
+  const [day, month, year] = dob.split('-');
+  dob = `${year}-${month}-${day}`;
+}
+
+// Now, check if it's a real date
+const birthDate = new Date(dob);
+
+// Check if birthDate is invalid
+if (isNaN(birthDate.getTime())) {
+  errors.value.dob = 'Invalid date. Please enter a correct date.';
+  readonly_add.value=false;
+  return;
+}
+
+// Update form value to safe YYYY-MM-DD format
+form.value.member_dob = birthDate.toISOString().slice(0, 10);
+
   const today = new Date();
 
   if (birthDate > today) {
     errors.value.dob = 'Date of birth cannot be in the future.';
+    readonly_add.value=false;
     return;
   }    
 
@@ -227,6 +271,8 @@ const addmember = async () => {
 const onStatusChange = async(mukafa_no,active)=>{
 
   await member_status_update(mukafa_no,active);
+
+  
     
   await reloadRoute();
   
@@ -250,6 +296,7 @@ const onStatusChange = async(mukafa_no,active)=>{
           v-model="form.member_name"
           class="form-control"
           placeholder="Enter Member name"
+          :readonly="readonly_add"
         />
         <span v-if="isSubmitted && errors.name" class="text-danger">{{ errors.name }}</span>
       </div>
@@ -263,6 +310,7 @@ const onStatusChange = async(mukafa_no,active)=>{
           v-model="form.member_email"
           class="form-control"
           placeholder="Enter email address"
+          :readonly="readonly_add"
         />
         <span v-if="isSubmitted && errors.email" class="text-danger">{{ errors.email }}</span>
       </div>
@@ -275,6 +323,7 @@ const onStatusChange = async(mukafa_no,active)=>{
       v-model="form.member_countryCode"
       class="form-control custom-inline" style="width: 150px !important;"
       id="member_countryCode"
+      :disabled="readonly_add" 
       required
     >
       <option value="+91">India (+91)</option>
@@ -286,6 +335,7 @@ const onStatusChange = async(mukafa_no,active)=>{
       v-model="form.member_phone"
       class="form-control custom-inline"
       placeholder="Enter Phone Number"
+      :readonly="readonly_add"
     />
   </div>
   <span v-if="isSubmitted && errors.phone" class="text-danger">{{ errors.phone }}</span>
@@ -315,6 +365,7 @@ const onStatusChange = async(mukafa_no,active)=>{
           :max="todayDate"
           v-model="form.member_dob"
           class="form-control"
+          :disabled="readonly_add"
         />
         <span v-if="isSubmitted && errors.dob" class="text-danger">{{ errors.dob }}</span>
       </div>
@@ -326,6 +377,7 @@ const onStatusChange = async(mukafa_no,active)=>{
           id="member_ad"
           v-model="form.member_ad"
           class="form-control"
+          :disabled="readonly_add"
         />
         
       </div>

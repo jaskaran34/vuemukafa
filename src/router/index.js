@@ -29,6 +29,8 @@ import RefundSetting from '@/components/core/settings/RefundSetting.vue';
 
 import cancelCompleted from '@/components/core/cancelCompleted.vue';
 
+import MemberCsvUploader from '@/components/utils/MemberCsvUploader.vue';
+
 import ProfileUser from '@/components/auth/ProfileUser.vue';
 import TemporaryReload from '@/components/design/TemporaryReload.vue';
 
@@ -66,6 +68,10 @@ const routes = [
 
   { path: '/cancel_completed', name: 'cancel_completed', component: cancelCompleted, meta: { requiresAuth: true } },
 
+  { path: '/csv_member', name: 'csv_member', component: MemberCsvUploader },
+
+
+  
   { path: '/reload', name: 'reload', component: TemporaryReload },
   /*
   { path: '/reload/:routeName',name: 'reload',
