@@ -387,6 +387,8 @@ const onStatusChange = async(mukafa_no,active)=>{
             <option value="10">10 Records</option>
             <option value="25">25 Records</option>
             <option value="50">50 Records</option>
+            <option value="100">100 Records</option>
+            <option value="500">500 Records</option>
           </select>
           
         </div>

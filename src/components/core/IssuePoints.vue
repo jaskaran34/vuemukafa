@@ -1,10 +1,80 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onBeforeUnmount, nextTick } from 'vue';
+import { Html5Qrcode } from 'html5-qrcode'
 import login_code from '@/composables/auth.js';
 const { findmember,addtransaction,member_tran_history,sendotp,verify_otp_backend } = login_code();
 import { v4 as uuidv4 } from 'uuid';
 
 
+const scannedText = ref('')
+const showScanner = ref(false)
+const mukafa_account = ref('');
+
+let html5QrCode = null
+
+let isScanning = false; // ✅ Manual flag for safe stop()
+let scanHandled = false; // ✅ prevent duplicate scan handling
+
+const open_camera = async () => {
+  showScanner.value = true;
+  await nextTick(); // wait for DOM to render
+
+  const qrRegionId = "qr-reader";
+  html5QrCode = new Html5Qrcode(qrRegionId);
+  scanHandled = false;
+
+  const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+  try {
+    await html5QrCode.start(
+      { facingMode: "environment" },
+      config,
+      async (decodedText) => {
+        if (scanHandled) return; // ✅ ignore repeated scans
+        scanHandled = true;
+
+        scannedText.value = decodedText;
+
+        const urlParts = decodedText.split('/');
+        mukafa_account.value = urlParts[6] || '';
+
+        await find_member();
+
+        if (isScanning && html5QrCode) {
+          try {
+            await html5QrCode.stop();
+            await html5QrCode.clear();
+          } catch (err) {
+            console.warn("Error while stopping scanner after scan:", err);
+          }
+        }
+
+        isScanning = false;
+        showScanner.value = false;
+      }
+    );
+
+    isScanning = true;
+
+  } catch (err) {
+    console.error("Unable to start QR scanner", err);
+  }
+};
+
+
+onBeforeUnmount(async () => {
+  if (html5QrCode) {
+    try {
+      if (isScanning) {
+        await html5QrCode.stop();
+        isScanning = false;
+      }
+      await html5QrCode.clear();
+    } catch (err) {
+      console.warn("Error cleaning up QR scanner:", err);
+    }
+  }
+});
 
 const history = ref([]);
  
@@ -45,7 +115,7 @@ errors.value.points='';
 
   try {
    
- let result = await findmember(document.getElementById('mukafa_account').value);
+ let result = await findmember(mukafa_account.value);
     member.value=result.member;
     member_account.value.member_carduid=result.cardUID;
     member_account.value.member_cardname=result.card_name;
@@ -202,17 +272,28 @@ const order_number=document.getElementById('order_no').value;
 
           <input
             type="text"
+            v-model="mukafa_account"
             id="mukafa_account"
             class="form-control"
           />
+          
+          
+          
           <span v-if="errors.account" class="text-danger">{{ errors.account }}</span>
         </div>
       </div>
       <button type="submit" id="enterbtn" class="btn btn-primary">Enter</button>
       
     </form>
+    <hr>
+    <div>
+            <button type="button" class="btn btn-success" @click="open_camera">Scan QR Code</button>
+            <div v-if="showScanner" id="qr-reader" style="width: 300px; margin-top: 20px;"></div>
+           
+          </div>
   </div>
 <!--
+   <p v-if="scannedText">Scanned QR Code: {{ scannedText }}</p>
   <div v-if="recent_partner" class="profile-container mt-3">
     
 

@@ -43,7 +43,14 @@
         <li class="nav-item">
           <router-link class="nav-link"
             :to="{ name: 'return' }">Cancellation / Return</router-link>
-        </li><!--
+        </li>
+        
+        <li class="nav-item">
+          <router-link class="nav-link"
+            :to="{ name: 'order_cancel' }">Order Cancel</router-link>
+        </li>
+
+        <!--
         
         <li class="nav-item">
           <router-link class="nav-link"

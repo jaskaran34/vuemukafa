@@ -9,6 +9,8 @@ import IssuePoints from '@/components/core/IssuePoints.vue';
 import RedumptionCase from '@/components/core/RedumptionCase.vue';
 import CancelReturn from '@/components/core/CancelReturn.vue';
 
+import orderCancel from '@/components/core/orderCancel.vue';
+
 import AddPurchase from  '@/components/core/addPurchase.vue';
 
 import CancellationReport from '@/components/core/Reports/CancellationReport.vue';
@@ -44,6 +46,8 @@ const routes = [
   
   { path: '/redumption', name: 'redumption', component: RedumptionCase, meta: { requiresAuth: true } },
   { path: '/return', name: 'return', component: CancelReturn, meta: { requiresAuth: true } },
+  { path: '/order_cancel', name: 'order_cancel', component: orderCancel, meta: { requiresAuth: true } },
+
 
   { path: '/report_transactions', name: 'report_transactions', component: TransactionsReport, meta: { requiresAuth: true } },
   { path: '/report_settle', name: 'report_settle', component: SettlementsReport, meta: { requiresAuth: true } },

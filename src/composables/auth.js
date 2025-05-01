@@ -430,6 +430,38 @@ if(getstaffid!="Error"){
       }
     }
 
+
+
+    const allorders= async (pageurl = null,params) =>{
+      try {
+        //console.log(params.toString());
+        let baseUrl =`${authStore.baseURL}/partner/orders`;
+        if(pageurl){
+          //console.log(url);console.log(params);
+        }
+        const url = pageurl ||`${baseUrl}?${params.toString()}`;
+       // console.log(url);
+        let res = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${authStore.token}`
+          }
+        });
+    
+
+        if (res.status === 200) {
+         
+          //console.log(res);
+          return res;
+        } else {
+          throw new Error('Failed to find member');
+        }
+      } catch (error) {
+        throw new Error(error?.response?.data?.message || error.message || 'Network error');
+      }
+    }
+
+
+
     const register_member= async(member)=>{
       let url =`${authStore.baseURL}/member/register`;
 
@@ -621,6 +653,7 @@ console.log(res.data);
         
         
         alltransactions,
+        allorders,
         cancel_transaction,
 
         register_member,
